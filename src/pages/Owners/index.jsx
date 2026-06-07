@@ -1,0 +1,1 @@
+export { OwnersView } from './View'
