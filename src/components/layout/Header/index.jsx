@@ -2,10 +2,16 @@ import { LogOut, Moon, Search, Sun } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useTheme } from '../../../contexts/ThemeContext'
 import { userProfile } from '../../../constants'
+import { sessionService } from '../../../services/auth'
 
 export function Header() {
   const { isDark, toggle } = useTheme()
   const navigate = useNavigate()
+
+  const handleLogout = () => {
+    sessionService.clear()
+    navigate('/login', { replace: true })
+  }
 
   return (
     <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center gap-3 border-b border-[var(--border)] bg-[var(--surface)]/95 px-5 backdrop-blur-xl">
@@ -34,7 +40,7 @@ export function Header() {
 
         {/* Cerrar sesión */}
         <button
-          onClick={() => navigate('/login')}
+          onClick={handleLogout}
           className="grid h-9 w-9 place-items-center rounded-xl text-[var(--text-2)] transition hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-500/10"
           aria-label="Cerrar sesión"
           title="Cerrar sesión"

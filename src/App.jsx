@@ -40,7 +40,11 @@ export default function App() {
         <Route path="seguimientos" element={<FollowUpsView />} />
         <Route path="reportes"     element={<ReportsView />} />
         <Route path="configuracion" element={<SettingsView />} />
-        <Route path="admin"         element={<AdminView />} />
+        <Route path="admin" element={
+            <ProtectedRoute requiredRole="admin">
+              <AdminView />
+            </ProtectedRoute>
+          } />
       </Route>
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>

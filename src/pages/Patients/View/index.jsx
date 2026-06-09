@@ -1,5 +1,11 @@
 import { useMemo, useRef, useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { ChevronDown, Edit3, Eye, Plus, Trash2 } from 'lucide-react'
+import { useDebounce } from '../../../hooks/useDebounce'
+import { useConfirm } from '../../../hooks/useConfirm.jsx'
+import { FormField } from '../../../components/ui/FormField'
+import { patientSchema } from '../../../utils/schemas'
 import { Link } from 'react-router-dom'
 import { PageContainer } from '../../../components/layout/PageContainer'
 import { Badge } from '../../../components/ui/Badge'
@@ -31,6 +37,7 @@ export function PatientsView() {
   const [modal,       setModal]       = useState(null)
   const [dropOpen,    setDropOpen]    = useState(false)
   const dropRef = useRef(null)
+  const { confirm, ConfirmDialog } = useConfirm()
   const patientsAll = useAppStore((s) => s.patients)
   const owners = useAppStore((s) => s.owners)
   const search = useAppStore((s) => s.patientSearch)
@@ -41,12 +48,13 @@ export function PatientsView() {
   const updatePatient = useAppStore((s) => s.updatePatient)
   const deletePatient = useAppStore((s) => s.deletePatient)
 
+  const debouncedSearch = useDebounce(search, 280)
   const patients = useMemo(() => patientsAll.filter((p) => {
     const owner = owners.find((o) => o.id === p.ownerId)?.name ?? p.owner
-    const q = search.toLowerCase()
+    const q = debouncedSearch.toLowerCase()
     return (filter === 'todos' || p.species === filter) &&
       [p.name, p.species, p.breed, p.status, owner].some((v) => v?.toLowerCase().includes(q))
-  }), [patientsAll, owners, search, filter])
+  }), [patientsAll, owners, debouncedSearch, filter])
 
   // Colores por inicial para avatares más vivos
   const avatarGrad = ['from-blue-500 to-blue-700','from-violet-500 to-purple-700','from-emerald-500 to-teal-600','from-rose-400 to-pink-600','from-amber-400 to-orange-500','from-sky-400 to-cyan-600']
@@ -111,7 +119,13 @@ export function PatientsView() {
           <button onClick={() => setModal({ mode: 'edit', data: row })} className="grid h-8 w-8 place-items-center rounded-lg text-[var(--text-3)] transition hover:bg-[var(--surface-2)] hover:text-[var(--text)]">
             <Edit3 size={14} />
           </button>
-          <button onClick={() => deletePatient(row.id)} className="grid h-8 w-8 place-items-center rounded-lg text-[var(--text-3)] transition hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-500/10">
+          <button
+            onClick={async () => {
+              const ok = await confirm({ title: `Eliminar ${row.name}`, message: 'Esta acción no se puede deshacer.', danger: true })
+              if (ok) deletePatient(row.id)
+            }}
+            className="grid h-8 w-8 place-items-center rounded-lg text-[var(--text-3)] transition hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-500/10"
+          >
             <Trash2 size={14} />
           </button>
         </div>
@@ -198,50 +212,71 @@ export function PatientsView() {
           }}
         />
       )}
+      <ConfirmDialog />
     </PageContainer>
   )
 }
 
 function PatientModal({ modal, owners, onClose, onSave }) {
-  const [form, setForm] = useState(() => ({ ...emptyPatient, ...modal.data }))
-  const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }))
-  const setCheck = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.checked }))
+  const { register, handleSubmit, setValue, watch, formState: { errors, isSubmitting } } = useForm({
+    resolver: zodResolver(patientSchema),
+    defaultValues: { ...emptyPatient, ...modal.data },
+  })
+
+  const onSubmit = (data) => onSave(data)
 
   return (
     <Modal isOpen={!!modal} onClose={onClose} title={modal.mode === 'edit' ? 'Editar paciente' : 'Nuevo paciente'}>
-      <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); onSave({ ...form, weight: Number(form.weight) || 0 }) }}>
+      <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
 
         <section>
           <p className="mb-2 text-[10px] font-semibold uppercase tracking-widest text-[var(--text-3)]">Datos básicos</p>
           <div className="grid gap-2 sm:grid-cols-2">
-            <Input placeholder="Nombre *" value={form.name} onChange={set('name')} required />
-            <Select
-              options={['Canino', 'Felino', 'Ave', 'Reptil', 'Otro']}
-              value={form.species} onChange={set('species')} placeholder="Especie"
-            />
-            <Input placeholder="Raza *" value={form.breed} onChange={set('breed')} required />
-            <Input placeholder="Color / pelaje" value={form.color} onChange={set('color')} />
-            <Input placeholder="Edad (ej: 3 años)" value={form.age} onChange={set('age')} />
-            <Input type="number" step="0.1" min="0" placeholder="Peso (kg)" value={form.weight} onChange={set('weight')} />
-            <Select options={['Macho', 'Hembra']} value={form.sex} onChange={set('sex')} placeholder="Sexo" />
-            <Select
-              options={['Estable', 'Tratamiento', 'Observacion', 'Preventivo', 'Alta']}
-              value={form.status} onChange={set('status')} placeholder="Estado"
-            />
+            <FormField error={errors.name}>
+              <Input placeholder="Nombre *" {...register('name')} />
+            </FormField>
+            <FormField error={errors.species}>
+              <Select options={['Canino','Felino','Ave','Reptil','Otro']}
+                value={watch('species')}
+                onChange={(e) => setValue('species', e.target.value, { shouldValidate: true })}
+                placeholder="Especie *" />
+            </FormField>
+            <FormField error={errors.breed}>
+              <Input placeholder="Raza *" {...register('breed')} />
+            </FormField>
+            <Input placeholder="Color / pelaje" {...register('color')} />
+            <Input placeholder="Edad (ej: 3 años)" {...register('age')} />
+            <FormField error={errors.weight}>
+              <Input type="number" step="0.1" min="0" placeholder="Peso (kg)" {...register('weight')} />
+            </FormField>
+            <FormField error={errors.sex}>
+              <Select options={['Macho','Hembra']}
+                value={watch('sex')}
+                onChange={(e) => setValue('sex', e.target.value, { shouldValidate: true })}
+                placeholder="Sexo *" />
+            </FormField>
+            <FormField error={errors.status}>
+              <Select options={['Estable','Tratamiento','Observacion','Preventivo','Alta']}
+                value={watch('status')}
+                onChange={(e) => setValue('status', e.target.value, { shouldValidate: true })}
+                placeholder="Estado *" />
+            </FormField>
           </div>
         </section>
 
         <section>
           <p className="mb-2 text-[10px] font-semibold uppercase tracking-widest text-[var(--text-3)]">Información clínica</p>
           <div className="space-y-2">
-            <Select
-              options={owners.map((o) => ({ value: o.id, label: o.name }))}
-              value={form.ownerId} onChange={set('ownerId')}
-              placeholder="Seleccionar propietario *" required
-            />
-            <Input placeholder="Número de microchip" value={form.microchip} onChange={set('microchip')} />
+            <FormField error={errors.ownerId}>
+              <Select
+                options={owners.map((o) => ({ value: o.id, label: o.name }))}
+                value={watch('ownerId')}
+                onChange={(e) => setValue('ownerId', e.target.value, { shouldValidate: true })}
+                placeholder="Seleccionar propietario *" />
+            </FormField>
+            <Input placeholder="Número de microchip" {...register('microchip')} />
             <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-[var(--border)] bg-[var(--surface-2)] px-4 py-2.5 text-sm font-medium text-[var(--text)] transition hover:bg-[var(--border)]">
-              <input type="checkbox" checked={form.sterilized} onChange={setCheck('sterilized')} className="h-4 w-4 accent-blue-600" />
+              <input type="checkbox" {...register('sterilized')} className="h-4 w-4 accent-blue-600" />
               Esterilizado / a
             </label>
           </div>
@@ -249,7 +284,7 @@ function PatientModal({ modal, owners, onClose, onSave }) {
 
         <div className="flex justify-end gap-2">
           <Button variant="ghost" type="button" onClick={onClose}>Cancelar</Button>
-          <Button variant="primary" type="submit">Guardar</Button>
+          <Button variant="primary" type="submit" disabled={isSubmitting}>Guardar</Button>
         </div>
       </form>
     </Modal>

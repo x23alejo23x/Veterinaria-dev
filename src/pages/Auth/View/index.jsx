@@ -1,40 +1,37 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Lock, PawPrint, User } from 'lucide-react'
-import { Button } from '../../../components/ui/Button'
-import { Input } from '../../../components/ui/Input'
 import { notify } from '../../../utils/notify'
-
-const VALID_USER = import.meta.env.VITE_LOGIN_USER
-const VALID_PASS = import.meta.env.VITE_LOGIN_PASS
+import { loginService, sessionService } from '../../../services/auth'
 
 export function AuthView() {
   const navigate  = useNavigate()
+  const location  = useLocation()
+  const from      = location.state?.from?.pathname ?? '/dashboard'
+
   const [user,    setUser]    = useState('')
   const [pass,    setPass]    = useState('')
   const [loading, setLoading] = useState(false)
   const [error,   setError]   = useState('')
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault()
+    if (!user || !pass) { setError('Completa todos los campos'); return }
+
     setError('')
-
-    if (!user || !pass) {
-      setError('Completa todos los campos')
-      return
-    }
-
     setLoading(true)
-    setTimeout(() => {
-      if (user === VALID_USER && pass === VALID_PASS) {
-        notify.success('Sesión iniciada')
-        navigate('/dashboard')
-      } else {
-        setError('Usuario o contraseña incorrectos')
-        setLoading(false)
-      }
-    }, 600)
+
+    try {
+      const session = await loginService({ user, password: pass })
+      sessionService.save(session)
+      notify.success(`Bienvenido, ${session.name}`)
+      navigate(from, { replace: true })
+    } catch (err) {
+      setError(err.message ?? 'Error al iniciar sesión')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -44,47 +41,54 @@ export function AuthView() {
         animate={{ scale: [1, 1.05, 1] }}
         transition={{ duration: 14, repeat: Infinity }}
       />
-
       <motion.section
         className="relative z-10 w-full max-w-sm rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-8 shadow-xl"
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
       >
-        {/* Logo */}
         <div className="grid h-11 w-11 place-items-center rounded-xl bg-blue-600 text-white">
           <PawPrint size={22} />
         </div>
-
         <h1 className="mt-5 text-2xl font-bold tracking-tight text-[var(--text)]">Bienvenido</h1>
         <p className="mt-1 text-sm text-[var(--text-3)]">Ingresa tus credenciales para continuar</p>
 
         <form className="mt-6 space-y-3" onSubmit={handleLogin}>
-          <Input
-            icon={<User size={15} className="text-[var(--text-3)]" />}
-            placeholder="Usuario"
-            value={user}
-            onChange={(e) => setUser(e.target.value)}
-            autoComplete="username"
-          />
-          <Input
-            icon={<Lock size={15} className="text-[var(--text-3)]" />}
-            placeholder="Contraseña"
-            type="password"
-            value={pass}
-            onChange={(e) => setPass(e.target.value)}
-            autoComplete="current-password"
-          />
+          <div className="flex items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--surface-2)] px-3 py-2 focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-400/15">
+            <User size={15} className="shrink-0 text-[var(--text-3)]" />
+            <input
+              className="min-w-0 flex-1 bg-transparent text-sm text-[var(--text)] outline-none placeholder:text-[var(--text-3)]"
+              placeholder="Usuario"
+              value={user}
+              onChange={(e) => setUser(e.target.value)}
+              autoComplete="username"
+            />
+          </div>
+          <div className="flex items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--surface-2)] px-3 py-2 focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-400/15">
+            <Lock size={15} className="shrink-0 text-[var(--text-3)]" />
+            <input
+              className="min-w-0 flex-1 bg-transparent text-sm text-[var(--text)] outline-none placeholder:text-[var(--text-3)]"
+              type="password"
+              placeholder="Contraseña"
+              value={pass}
+              onChange={(e) => setPass(e.target.value)}
+              autoComplete="current-password"
+            />
+          </div>
 
           {error && (
-            <p className="rounded-lg bg-rose-50 px-3 py-2 text-xs font-medium text-rose-600 dark:bg-rose-500/10 dark:text-rose-400">
+            <p className="rounded-xl bg-rose-50 px-3 py-2 text-xs font-medium text-rose-600 dark:bg-rose-500/10 dark:text-rose-400">
               {error}
             </p>
           )}
 
-          <Button variant="primary" type="submit" className="w-full" disabled={loading}>
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full rounded-xl bg-blue-600 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:opacity-60"
+          >
             {loading ? 'Verificando…' : 'Ingresar'}
-          </Button>
+          </button>
         </form>
       </motion.section>
     </main>
