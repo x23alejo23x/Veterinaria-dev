@@ -3,7 +3,7 @@ import { navItems } from '../../../constants'
 
 export function Navbar() {
   return (
-    <nav className="flex gap-2 overflow-x-auto border-b border-slate-200 bg-white/70 px-4 py-3 backdrop-blur-xl lg:hidden" aria-label="Navegacion movil">
+    <nav className="flex gap-1 overflow-x-auto border-b border-[var(--border)] bg-[var(--surface)]/90 px-3 py-2 backdrop-blur-xl lg:hidden">
       {navItems.map((item) => {
         const Icon = item.icon
         return (
@@ -11,12 +11,14 @@ export function Navbar() {
             key={item.path}
             to={item.path}
             className={({ isActive }) =>
-              `inline-flex min-h-10 shrink-0 items-center gap-2 rounded-xl px-3 text-sm font-bold ${
-                isActive ? 'bg-blue-50 text-blue-700' : 'text-slate-600'
+              `inline-flex h-9 shrink-0 items-center gap-2 rounded-xl px-3 text-sm font-medium transition-colors ${
+                isActive
+                  ? 'bg-[var(--primary-10)] text-blue-600 dark:text-blue-400'
+                  : 'text-[var(--text-2)] hover:bg-[var(--surface-2)]'
               }`
             }
           >
-            <Icon size={17} />
+            <Icon size={15} />
             {item.label}
           </NavLink>
         )

@@ -5,12 +5,15 @@ import { Sidebar } from "../Sidebar";
 
 export function AppShell() {
   return (
-    <div className="grid min-h-svh lg:grid-cols-[88px_1fr]">
+    <div className="flex h-svh overflow-hidden">
       <Sidebar />
-      <main className="min-w-0">
+      {/* ml-14 = 56px = ancho del sidebar colapsado */}
+      <main className="flex min-w-0 flex-1 flex-col overflow-hidden lg:ml-14">
         <Header />
         <Navbar />
-        <Outlet />
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+          <Outlet />
+        </div>
       </main>
     </div>
   );

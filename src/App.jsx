@@ -1,4 +1,3 @@
-import { AnimatePresence } from 'framer-motion'
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { AppShell } from './components/layout/AppShell'
 import { ProtectedRoute } from './router/ProtectedRoute'
@@ -13,36 +12,37 @@ import { MedicalHistoryView } from './pages/MedicalHistory/View'
 import { FollowUpsView } from './pages/FollowUps/View'
 import { ReportsView } from './pages/Reports/View'
 import { SettingsView } from './pages/Settings/View'
+import { AdminView } from './pages/Admin/View'
 
 export default function App() {
-  const location = useLocation()
-
+  // AnimatePresence se removió del nivel de Routes porque key={pathname}
+  // desmontaba AppShell/Sidebar en cada navegación, reseteando el estado del sidebar.
+  // La animación de página se maneja en PageContainer con framer-motion.
   return (
-    <AnimatePresence mode="wait">
-      <Routes location={location} key={location.pathname}>
-        <Route path="/login" element={<AuthView />} />
-        <Route
-          path="/"
-          element={
-            <ProtectedRoute>
-              <AppShell />
-            </ProtectedRoute>
-          }
-        >
-          <Route index element={<Navigate to="/dashboard" replace />} />
-          <Route path="dashboard" element={<DashboardView />} />
-          <Route path="pacientes" element={<PatientsView />} />
-          <Route path="pacientes/:id" element={<PatientProfileView />} />
-          <Route path="medicaciones" element={<MedicationsView />} />
-          <Route path="propietarios" element={<OwnersView />} />
-          <Route path="agenda" element={<AppointmentsView />} />
-          <Route path="historial" element={<MedicalHistoryView />} />
-          <Route path="seguimientos" element={<FollowUpsView />} />
-          <Route path="reportes" element={<ReportsView />} />
-          <Route path="configuracion" element={<SettingsView />} />
-        </Route>
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
-      </Routes>
-    </AnimatePresence>
+    <Routes>
+      <Route path="/login" element={<AuthView />} />
+      <Route
+        path="/"
+        element={
+          <ProtectedRoute>
+            <AppShell />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<Navigate to="/dashboard" replace />} />
+        <Route path="dashboard"    element={<DashboardView />} />
+        <Route path="pacientes"    element={<PatientsView />} />
+        <Route path="pacientes/:id" element={<PatientProfileView />} />
+        <Route path="medicaciones" element={<MedicationsView />} />
+        <Route path="propietarios" element={<OwnersView />} />
+        <Route path="agenda"       element={<AppointmentsView />} />
+        <Route path="historial"    element={<MedicalHistoryView />} />
+        <Route path="seguimientos" element={<FollowUpsView />} />
+        <Route path="reportes"     element={<ReportsView />} />
+        <Route path="configuracion" element={<SettingsView />} />
+        <Route path="admin"         element={<AdminView />} />
+      </Route>
+      <Route path="*" element={<Navigate to="/dashboard" replace />} />
+    </Routes>
   )
 }

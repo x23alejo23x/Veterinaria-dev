@@ -1,23 +1,34 @@
 import { motion } from 'framer-motion'
 
-export function PageContainer({ eyebrow, title, description, actions, children }) {
+export function PageContainer({ eyebrow, title, description, actions, children, scrollable = false }) {
   return (
     <motion.section
-      className="mx-auto w-full max-w-[1420px] px-4 py-6 sm:px-6 lg:px-7"
-      initial={{ opacity: 0, y: 18 }}
+      className="flex min-h-0 flex-1 flex-col overflow-hidden"
+      initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -12 }}
-      transition={{ duration: 0.28 }}
+      exit={{ opacity: 0, y: -4 }}
+      transition={{ duration: 0.18 }}
     >
-      <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-        <div>
-          {eyebrow ? <p className="mb-2 text-xs font-black uppercase tracking-[0.14em] text-blue-600">{eyebrow}</p> : null}
-          <h1 className="text-3xl font-black tracking-tight text-slate-950 sm:text-4xl lg:text-5xl">{title}</h1>
-          {description ? <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-500">{description}</p> : null}
+      {/* Encabezado fijo — compacto */}
+      <div className="shrink-0 px-5 pb-3 pt-5">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            {eyebrow && (
+              <p className="mb-0.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-blue-600">{eyebrow}</p>
+            )}
+            <h1 className="text-xl font-bold tracking-tight text-[var(--text)] sm:text-2xl">{title}</h1>
+            {description && (
+              <p className="mt-0.5 text-xs text-[var(--text-3)]">{description}</p>
+            )}
+          </div>
+          {actions && <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div>}
         </div>
-        {actions ? <div className="flex flex-wrap items-center gap-2">{actions}</div> : null}
       </div>
-      {children}
+
+      {/* Área de contenido */}
+      <div className={`flex min-h-0 flex-1 flex-col px-5 pb-4 ${scrollable ? 'overflow-y-auto' : 'overflow-hidden'}`}>
+        {children}
+      </div>
     </motion.section>
   )
 }

@@ -1,34 +1,43 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { X } from 'lucide-react'
-import { Button } from '../Button'
 
-export function Modal({ isOpen, onClose, title, children, maxWidth = 'max-w-2xl' }) {
+export function Modal({ isOpen, onClose, title, children, maxWidth = 'max-w-lg' }) {
   return (
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          className="fixed inset-0 z-50 grid place-items-center bg-slate-950/40 p-4 backdrop-blur-md"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          onClick={(event) => event.target === event.currentTarget && onClose()}
+          transition={{ duration: 0.18 }}
         >
+          {/* Backdrop */}
+          <motion.div
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            onClick={onClose}
+          />
+          {/* Dialog */}
           <motion.div
             role="dialog"
             aria-modal="true"
-            aria-labelledby="modal-title"
-            className={`max-h-[92svh] w-full overflow-auto rounded-3xl bg-white shadow-2xl ${maxWidth}`}
-            initial={{ opacity: 0, y: 24, scale: 0.97 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 16, scale: 0.98 }}
+            className={`relative z-10 w-full ${maxWidth} max-h-[90svh] overflow-auto rounded-2xl border border-[var(--border)] bg-[var(--surface)] shadow-2xl`}
+            initial={{ opacity: 0, scale: 0.96, y: 12 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.97, y: 8 }}
+            transition={{ duration: 0.2 }}
           >
-            <div className="flex items-center justify-between gap-4 border-b border-slate-200 px-5 py-4">
-              <h2 id="modal-title" className="text-lg font-extrabold text-slate-900">{title}</h2>
-              <Button className="h-10 w-10 min-w-10 px-0" variant="ghost" aria-label="Cerrar" onClick={onClose}>
-                <X size={18} />
-              </Button>
+            <div className="flex items-center justify-between border-b border-[var(--border)] px-6 py-4">
+              <h2 className="text-base font-semibold text-[var(--text)]">{title}</h2>
+              <button
+                onClick={onClose}
+                className="grid h-8 w-8 place-items-center rounded-lg text-[var(--text-3)] transition hover:bg-[var(--surface-2)] hover:text-[var(--text)]"
+                aria-label="Cerrar"
+              >
+                <X size={16} />
+              </button>
             </div>
-            <div className="p-5">{children}</div>
+            <div className="px-6 py-5">{children}</div>
           </motion.div>
         </motion.div>
       )}

@@ -20,38 +20,118 @@ export function OwnersView() {
   const addOwner = useAppStore((s) => s.addOwner)
   const updateOwner = useAppStore((s) => s.updateOwner)
   const deleteOwner = useAppStore((s) => s.deleteOwner)
+
   const owners = useMemo(() => ownersAll.filter((owner) => {
-    const pets = patients.filter((patient) => patient.ownerId === owner.id).map((patient) => patient.name).join(', ')
+    const pets = patients.filter((p) => p.ownerId === owner.id).map((p) => p.name).join(', ')
     const q = search.toLowerCase()
-    return [owner.name, owner.phone, owner.email, pets].some((value) => value?.toLowerCase().includes(q))
+    return [owner.name, owner.phone, owner.email, pets].some((v) => v?.toLowerCase().includes(q))
   }), [ownersAll, patients, search])
+
   const columns = [
-    { key: 'name', label: 'Propietario', render: (row) => <div className="flex items-center gap-3"><div className="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br from-amber-400 to-rose-500 font-black text-white">{row.name[0]}</div><div><p className="font-extrabold text-slate-900">{row.name}</p><p className="text-xs text-slate-500">{row.email}</p></div></div> },
-    { key: 'pets', label: 'Pacientes', render: (row) => patients.filter((patient) => patient.ownerId === row.id).map((patient) => patient.name).join(', ') || 'Sin pacientes' },
-    { key: 'phone', label: 'Telefono' },
-    { key: 'balance', label: 'Saldo', render: (row) => <Badge tone={row.balance > 0 ? 'rose' : 'green'}>{row.balanceStr}</Badge> },
-    { key: 'actions', label: 'Acciones', render: (row) => <div className="flex items-center gap-2"><Button className="h-10 w-10 min-w-10 px-0" aria-label="Editar" onClick={() => setModal({ mode: 'edit', data: row })}><Edit3 size={17} /></Button><Button className="h-10 w-10 min-w-10 px-0" aria-label="Eliminar" onClick={() => deleteOwner(row.id)}><Trash2 size={17} /></Button></div> },
+    {
+      key: 'name', label: 'Propietario',
+      render: (row) => (
+        <div className="flex items-center gap-3">
+          <div className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-amber-500 text-sm font-bold text-white">
+            {row.name[0]}
+          </div>
+          <div>
+            <p className="font-semibold text-[var(--text)]">{row.name}</p>
+            <p className="text-xs text-[var(--text-3)]">{row.email}</p>
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: 'pets', label: 'Pacientes',
+      render: (row) => (
+        <span className="text-sm text-[var(--text-2)]">
+          {patients.filter((p) => p.ownerId === row.id).map((p) => p.name).join(', ') || 'Sin pacientes'}
+        </span>
+      ),
+    },
+    { key: 'phone', label: 'Teléfono' },
+    {
+      key: 'balance', label: 'Saldo',
+      render: (row) => <Badge tone={row.balance > 0 ? 'rose' : 'green'}>{row.balanceStr}</Badge>,
+    },
+    {
+      key: 'actions', label: '',
+      render: (row) => (
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => setModal({ mode: 'edit', data: row })}
+            className="grid h-8 w-8 place-items-center rounded-lg text-[var(--text-3)] transition hover:bg-[var(--surface-2)] hover:text-[var(--text)]"
+            aria-label="Editar"
+          >
+            <Edit3 size={15} />
+          </button>
+          <button
+            onClick={() => deleteOwner(row.id)}
+            className="grid h-8 w-8 place-items-center rounded-lg text-[var(--text-3)] transition hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-500/10"
+            aria-label="Eliminar"
+          >
+            <Trash2 size={15} />
+          </button>
+        </div>
+      ),
+    },
   ]
+
   return (
-    <PageContainer eyebrow="Propietarios" title="Relacion propietario-paciente" description="Contactos, pacientes asociados y saldos." actions={<Button variant="primary" onClick={() => setModal({ mode: 'create', data: emptyOwner })}><Plus size={18} /> Nuevo propietario</Button>}>
-      <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between"><SearchInput placeholder="Buscar propietario" value={search} onChange={(event) => setSearch(event.target.value)} /><p className="text-sm font-semibold text-slate-500">{owners.length} propietarios</p></div>
-      <Table columns={columns} rows={owners} />
-      {modal ? <OwnerModal key={modal.data?.id ?? modal.mode} modal={modal} onClose={() => setModal(null)} onSave={(data) => { modal.mode === 'edit' && modal.data?.id ? updateOwner(modal.data.id, data) : addOwner(data); setModal(null) }} /> : null}
+    <PageContainer
+      eyebrow="Propietarios"
+      title="Relación propietario-paciente"
+      description="Contactos, pacientes asociados y saldos."
+      actions={
+        <Button variant="primary" onClick={() => setModal({ mode: 'create', data: emptyOwner })}>
+          <Plus size={15} /> Nuevo propietario
+        </Button>
+      }
+    >
+      <div className="mb-3 shrink-0 flex flex-wrap items-center gap-3">
+        <SearchInput placeholder="Buscar propietario…" value={search} onChange={(e) => setSearch(e.target.value)} />
+        <span className="ml-auto text-xs text-[var(--text-3)]">{owners.length} registros</span>
+      </div>
+      <div className="flex flex-1 min-h-0 flex-col">
+        <Table columns={columns} rows={owners} pageSize={10} />
+      </div>
+
+      {modal && (
+        <OwnerModal
+          key={modal.data?.id ?? modal.mode}
+          modal={modal}
+          onClose={() => setModal(null)}
+          onSave={(data) => {
+            modal.mode === 'edit' && modal.data?.id
+              ? updateOwner(modal.data.id, data)
+              : addOwner(data)
+            setModal(null)
+          }}
+        />
+      )}
     </PageContainer>
   )
 }
 
 function OwnerModal({ modal, onClose, onSave }) {
   const [form, setForm] = useState(() => ({ ...emptyOwner, ...modal.data }))
-  const update = (key) => (event) => setForm((current) => ({ ...current, [key]: event.target.value }))
+  const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }))
+
   return (
     <Modal isOpen={!!modal} onClose={onClose} title={modal.mode === 'edit' ? 'Editar propietario' : 'Nuevo propietario'}>
-      <form className="grid gap-3" onSubmit={(event) => { event.preventDefault(); onSave(form) }}>
-        <Input placeholder="Nombre completo" value={form.name} onChange={update('name')} required />
-        <div className="grid gap-3 sm:grid-cols-2"><Input placeholder="Telefono" value={form.phone} onChange={update('phone')} required /><Input placeholder="Email" value={form.email} onChange={update('email')} /></div>
-        <Input placeholder="Direccion" value={form.address} onChange={update('address')} />
-        <Input type="number" placeholder="Saldo" value={form.balance} onChange={update('balance')} />
-        <div className="flex justify-end gap-2 pt-2"><Button variant="ghost" onClick={onClose}>Cancelar</Button><Button variant="primary" type="submit">Guardar</Button></div>
+      <form className="space-y-3" onSubmit={(e) => { e.preventDefault(); onSave(form) }}>
+        <Input placeholder="Nombre completo *" value={form.name} onChange={set('name')} required />
+        <div className="grid gap-3 sm:grid-cols-2">
+          <Input placeholder="Teléfono *" value={form.phone} onChange={set('phone')} required />
+          <Input placeholder="Email" type="email" value={form.email} onChange={set('email')} />
+        </div>
+        <Input placeholder="Dirección" value={form.address} onChange={set('address')} />
+        <Input type="number" placeholder="Saldo ($)" value={form.balance} onChange={set('balance')} />
+        <div className="flex justify-end gap-2 pt-1">
+          <Button variant="ghost" type="button" onClick={onClose}>Cancelar</Button>
+          <Button variant="primary" type="submit">Guardar</Button>
+        </div>
       </form>
     </Modal>
   )

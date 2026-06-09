@@ -1,13 +1,13 @@
-import { motion } from 'framer-motion'
-
-export function Card({ children, className = '', hover = true }) {
+export function Card({ children, className = '', hover = false }) {
   return (
-    <motion.div
-      className={`rounded-2xl border border-slate-200/80 bg-white/75 shadow-[0_10px_36px_rgba(20,51,80,0.08)] backdrop-blur-xl ${className}`}
-      whileHover={hover ? { y: -2 } : undefined}
-      transition={{ duration: 0.2 }}
+    <div
+      className={`rounded-2xl border border-[var(--border)] bg-[var(--surface)]
+        shadow-[0_1px_4px_rgba(0,0,0,0.06),0_4px_16px_rgba(0,0,0,0.04)]
+        dark:shadow-[0_1px_4px_rgba(0,0,0,0.4),0_4px_16px_rgba(0,0,0,0.25)]
+        ${hover ? 'transition-shadow hover:shadow-[0_4px_20px_rgba(0,0,0,0.1)] dark:hover:shadow-[0_4px_20px_rgba(0,0,0,0.5)]' : ''}
+        ${className}`}
     >
       {children}
-    </motion.div>
+    </div>
   )
 }
