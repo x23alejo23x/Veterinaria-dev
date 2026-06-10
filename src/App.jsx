@@ -13,6 +13,7 @@ import { FollowUpsView } from '@/pages/FollowUps/View'
 import { ReportsView } from '@/pages/Reports/View'
 import { SettingsView } from '@/pages/Settings/View'
 import { AdminView } from '@/pages/Admin/View'
+import { RegisterView } from '@/pages/Register/View'
 
 export default function App() {
   // AnimatePresence se removió del nivel de Routes porque key={pathname}
@@ -21,6 +22,7 @@ export default function App() {
   return (
     <Routes>
       <Route path="/login" element={<AuthView />} />
+      <Route path="/registro" element={<RegisterView />} />
       <Route
         path="/"
         element={

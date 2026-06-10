@@ -5,7 +5,8 @@
       "name": "veterinaria-dev",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev"],
-      "port": 6358
+      "port": 6358,
+      "autoPort": false
     }
   ]
 }
