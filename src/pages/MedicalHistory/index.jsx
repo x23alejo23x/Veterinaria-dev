@@ -1,1 +1,1 @@
-export { MedicalHistoryView } from './View'
+export { MedicalHistoryView } from '@/pages/MedicalHistory/View'

@@ -8,7 +8,7 @@
  */
 
 import axios from 'axios'
-import { sessionService } from './auth'
+import { sessionService } from '@/services/auth'
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:3000/api'
 

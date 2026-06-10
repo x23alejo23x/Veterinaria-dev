@@ -7,7 +7,7 @@
  *   3. El resto del sistema (ProtectedRoute, RBAC) no cambia
  */
 
-import api from './api'
+import api from '@/services/api'
 
 const SESSION_KEY = 'vet-session'
 

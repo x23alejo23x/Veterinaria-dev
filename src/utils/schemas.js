@@ -50,6 +50,17 @@ export const loginSchema = z.object({
   password: z.string().min(1, 'La contraseña es requerida'),
 })
 
+/* ── Cita ── */
+export const appointmentSchema = z.object({
+  patientId:   z.string().min(1, 'Selecciona un paciente'),
+  vet:         z.string().min(2, 'Ingresa el nombre del veterinario'),
+  date:        z.string().min(1, 'Selecciona una fecha'),
+  time:        z.string().min(1, 'Selecciona una hora'),
+  type:        z.enum(['General','Urgencia','Control','Vacunación','Cirugía'], { errorMap: () => ({ message: 'Tipo inválido' }) }),
+  status:      z.enum(['Pendiente','Confirmada','Cancelada','Completada'], { errorMap: () => ({ message: 'Estado inválido' }) }),
+  notes:       z.string().max(300, 'Máximo 300 caracteres').optional(),
+})
+
 /* ── Empresa (Admin SaaS) ── */
 export const companySchema = z.object({
   name:        z.string().min(2, 'Mínimo 2 caracteres').max(80),

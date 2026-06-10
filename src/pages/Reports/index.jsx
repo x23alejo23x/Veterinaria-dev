@@ -1,1 +1,1 @@
-export { ReportsView } from './View'
+export { ReportsView } from '@/pages/Reports/View'

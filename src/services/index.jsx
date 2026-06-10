@@ -8,14 +8,14 @@
  *   3. Importa en el store o componente
  */
 
-export { default as api }           from './api'
-export { sessionService, loginService } from './auth'
+export { default as api }           from '@/services/api'
+export { sessionService, loginService } from '@/services/auth'
 
 // ── Servicios pendientes de implementar ──────────────────
 // Estos son los contratos que se conectarán con el backend real.
 // Por ahora la data vive en Zustand con seed data.
 
-// export * from './patientService'
-// export * from './medicationService'
-// export * from './ownerService'
-// export * from './prescriptionService'
+// export * from '@/services/patientService'
+// export * from '@/services/medicationService'
+// export * from '@/services/ownerService'
+// export * from '@/services/prescriptionService'

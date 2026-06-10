@@ -1,4 +1,4 @@
-import { Card } from '../Card'
+import { Card } from '@/components/ui/Card'
 
 export function Drawer({ children, className = '' }) {
   return <Card className={`p-5 ${className}`}>{children}</Card>

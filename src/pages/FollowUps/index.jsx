@@ -1,1 +1,1 @@
-export { FollowUpsView } from './View'
+export { FollowUpsView } from '@/pages/FollowUps/View'

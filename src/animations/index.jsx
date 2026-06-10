@@ -1,3 +1,3 @@
-export { backgrounds } from './backgrounds'
-export { pageEffects } from './pageEffects'
-export { transitions } from './transitions'
+export { backgrounds } from '@/animations/backgrounds'
+export { pageEffects } from '@/animations/pageEffects'
+export { transitions } from '@/animations/transitions'

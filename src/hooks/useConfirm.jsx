@@ -46,7 +46,7 @@ export function useConfirm() {
           {/* Header */}
           <div className="flex items-center justify-between border-b border-[var(--border)] px-5 py-4">
             <div className="flex items-center gap-2.5">
-              <div className={`grid h-8 w-8 place-items-center rounded-lg ${state.danger ? 'bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-400' : 'bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400'}`}>
+              <div className={`grid h-8 w-8 place-items-center rounded-lg ${state.danger ? 'bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-400' : 'bg-blue-50 text-violet-600 dark:bg-blue-500/10 dark:text-blue-400'}`}>
                 <AlertTriangle size={15} />
               </div>
               <p className="font-semibold text-[var(--text)]">{state.title}</p>
@@ -73,7 +73,7 @@ export function useConfirm() {
             </button>
             <button
               onClick={() => handleClose(true)}
-              className={`rounded-xl px-4 py-2 text-sm font-semibold text-white transition ${state.danger ? 'bg-rose-600 hover:bg-rose-700' : 'bg-blue-600 hover:bg-blue-700'}`}
+              className={`rounded-xl px-4 py-2 text-sm font-semibold text-white transition ${state.danger ? 'bg-rose-600 hover:bg-rose-700' : 'bg-gradient-to-br from-violet-600 to-indigo-600 hover:bg-blue-700'}`}
             >
               {state.danger ? 'Sí, eliminar' : 'Confirmar'}
             </button>

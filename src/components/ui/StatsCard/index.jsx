@@ -1,8 +1,8 @@
-import { Badge } from '../Badge'
-import { Card } from '../Card'
+import { Badge } from '@/components/ui/Badge'
+import { Card } from '@/components/ui/Card'
 
 const iconTone = {
-  blue:  'bg-blue-50  text-blue-600  dark:bg-blue-500/10  dark:text-blue-400',
+  blue:  'bg-blue-50  text-violet-600  dark:bg-blue-500/10  dark:text-blue-400',
   green: 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400',
   amber: 'bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400',
   rose:  'bg-rose-50  text-rose-600  dark:bg-rose-500/10  dark:text-rose-400',

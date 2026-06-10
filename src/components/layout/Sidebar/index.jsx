@@ -3,8 +3,8 @@ import { useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Moon, PawPrint, Sun } from 'lucide-react'
-import { navItems, userProfile } from '../../../constants'
-import { useTheme } from '../../../contexts/ThemeContext'
+import { navItems, userProfile } from '@/constants'
+import { useTheme } from '@/contexts/ThemeContext'
 
 export function Sidebar() {
   const { isDark, toggle } = useTheme()
@@ -47,12 +47,12 @@ export function Sidebar() {
       >
         {/* Logo */}
         <div className="flex h-16 shrink-0 items-center gap-3 overflow-hidden border-b border-[var(--border)] px-3.5">
-          <div className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-blue-600 text-white">
+          <div className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 text-white shadow-[0_2px_8px_rgba(124,58,237,0.4)]">
             <PawPrint size={16} />
           </div>
           {open && (
             <div className="min-w-0">
-              <p className="whitespace-nowrap text-[10px] font-bold uppercase tracking-widest text-blue-600">VetCare</p>
+              <p className="whitespace-nowrap text-[10px] font-bold uppercase tracking-widest text-violet-600">VetCare</p>
               <p className="truncate text-sm font-semibold text-[var(--text)]">{userProfile.clinic}</p>
             </div>
           )}
@@ -73,13 +73,13 @@ export function Sidebar() {
                     onClick={() => onNavClick(item.path)}
                     onMouseEnter={(e) => onIconEnter(e, item.label)}
                     onMouseLeave={() => !open && setTooltip(null)}
-                    className={`flex h-9 w-full items-center gap-3 rounded-xl px-2.5 text-sm font-medium transition-colors ${
+                    className={`flex h-11 w-full items-center gap-3 rounded-xl px-2.5 text-sm font-medium transition-colors ${
                       isActive
-                        ? 'bg-[var(--primary-10)] text-blue-600 dark:text-blue-400'
+                        ? 'bg-[var(--primary-10)] text-violet-700 dark:text-violet-300'
                         : 'text-[var(--text-2)] hover:bg-[var(--surface-2)] hover:text-[var(--text)]'
                     }`}
                   >
-                    <Icon className={`h-[18px] w-[18px] shrink-0 ${isActive ? 'text-blue-600 dark:text-blue-400' : 'text-[var(--text-3)]'}`} />
+                    <Icon className={`h-[18px] w-[18px] shrink-0 ${isActive ? 'text-violet-700 dark:text-violet-300' : 'text-[var(--text-3)]'}`} />
                     {open && <span className="whitespace-nowrap">{item.label}</span>}
                   </button>
                 </li>
@@ -94,7 +94,7 @@ export function Sidebar() {
             onClick={toggle}
             onMouseEnter={(e) => onIconEnter(e, isDark ? 'Modo claro' : 'Modo oscuro')}
             onMouseLeave={() => !open && setTooltip(null)}
-            className="flex h-9 w-full items-center gap-3 rounded-xl px-2.5 text-sm font-medium text-[var(--text-2)] transition-colors hover:bg-[var(--surface-2)] hover:text-[var(--text)]"
+            className="flex h-11 w-full items-center gap-3 rounded-xl px-2.5 text-sm font-medium text-[var(--text-2)] transition-colors hover:bg-[var(--surface-2)] hover:text-[var(--text)]"
           >
             {isDark
               ? <Sun size={17} className="shrink-0 text-amber-400" />
@@ -103,7 +103,7 @@ export function Sidebar() {
           </button>
 
           <div className="flex h-10 items-center gap-3 rounded-xl px-2.5">
-            <div className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-blue-600 text-xs font-bold text-white">
+            <div className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-gradient-to-br from-violet-600 to-indigo-600 text-xs font-bold text-white shadow-sm">
               {userProfile.initials}
             </div>
             {open && (

@@ -1,7 +1,7 @@
 import { Outlet } from "react-router-dom";
-import { Header } from "../Header";
-import { Navbar } from "../Navbar";
-import { Sidebar } from "../Sidebar";
+import { Header } from "@/components/layout/Header";
+import { Navbar } from "@/components/layout/Navbar";
+import { Sidebar } from "@/components/layout/Sidebar";
 
 export function AppShell() {
   return (

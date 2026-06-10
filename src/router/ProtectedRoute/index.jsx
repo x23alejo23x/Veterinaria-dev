@@ -1,5 +1,5 @@
 import { Navigate, useLocation } from 'react-router-dom'
-import { sessionService } from '../../services/auth'
+import { sessionService } from '@/services/auth'
 
 /**
  * ProtectedRoute — guarda de rutas con soporte RBAC.

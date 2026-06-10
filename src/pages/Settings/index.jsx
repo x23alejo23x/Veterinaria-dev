@@ -1,1 +1,1 @@
-export { SettingsView } from './View'
+export { SettingsView } from '@/pages/Settings/View'

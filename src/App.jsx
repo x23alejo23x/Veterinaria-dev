@@ -1,18 +1,18 @@
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
-import { AppShell } from './components/layout/AppShell'
-import { ProtectedRoute } from './router/ProtectedRoute'
-import { AuthView } from './pages/Auth/View'
-import { DashboardView } from './pages/Dashboard/View'
-import { PatientsView } from './pages/Patients/View'
-import { PatientProfileView } from './pages/PatientProfile/View'
-import { MedicationsView } from './pages/Medications/View'
-import { OwnersView } from './pages/Owners/View'
-import { AppointmentsView } from './pages/Appointments/View'
-import { MedicalHistoryView } from './pages/MedicalHistory/View'
-import { FollowUpsView } from './pages/FollowUps/View'
-import { ReportsView } from './pages/Reports/View'
-import { SettingsView } from './pages/Settings/View'
-import { AdminView } from './pages/Admin/View'
+import { AppShell } from '@/components/layout/AppShell'
+import { ProtectedRoute } from '@/router/ProtectedRoute'
+import { AuthView } from '@/pages/Auth/View'
+import { DashboardView } from '@/pages/Dashboard/View'
+import { PatientsView } from '@/pages/Patients/View'
+import { PatientProfileView } from '@/pages/PatientProfile/View'
+import { MedicationsView } from '@/pages/Medications/View'
+import { OwnersView } from '@/pages/Owners/View'
+import { AppointmentsView } from '@/pages/Appointments/View'
+import { MedicalHistoryView } from '@/pages/MedicalHistory/View'
+import { FollowUpsView } from '@/pages/FollowUps/View'
+import { ReportsView } from '@/pages/Reports/View'
+import { SettingsView } from '@/pages/Settings/View'
+import { AdminView } from '@/pages/Admin/View'
 
 export default function App() {
   // AnimatePresence se removió del nivel de Routes porque key={pathname}
@@ -35,7 +35,7 @@ export default function App() {
         <Route path="pacientes/:id" element={<PatientProfileView />} />
         <Route path="medicaciones" element={<MedicationsView />} />
         <Route path="propietarios" element={<OwnersView />} />
-        <Route path="agenda"       element={<AppointmentsView />} />
+        <Route path="agenda" element={<AppointmentsView />} />
         <Route path="historial"    element={<MedicalHistoryView />} />
         <Route path="seguimientos" element={<FollowUpsView />} />
         <Route path="reportes"     element={<ReportsView />} />

@@ -1,6 +1,6 @@
 import { create } from 'zustand'
-import { medicationsSeed, ownersSeed, patientsSeed, prescriptionsSeed } from '../constants'
-import { notify } from '../utils/notify.js'
+import { appointmentsSeed, medicationsSeed, ownersSeed, patientsSeed, prescriptionsSeed } from '@/constants'
+import { notify } from '@/utils/notify.js'
 
 const createId = (prefix) => `${prefix}-${globalThis.crypto?.randomUUID?.().slice(0, 8) ?? Date.now()}`
 const money    = (value)  => `$${(Number(value) || 0).toLocaleString('es-CO')}`
@@ -27,6 +27,7 @@ export const useAppStore = create((set) => ({
   owners:           ownersSeed,
   medicationsCatalog: medicationsSeed,
   prescriptions:    prescriptionsSeed,
+  appointments:     appointmentsSeed,
 
   /* ── Search / filter state ── */
   patientSearch:   '',
@@ -156,6 +157,20 @@ export const useAppStore = create((set) => ({
   })),
 
   /* ── Prescripciones ── */
+  /* ── Citas ── */
+  addAppointment: safeAction((apt) => set((state) => {
+    notify.success('Cita agendada')
+    return { appointments: [{ ...apt, id: createId('apt') }, ...state.appointments] }
+  })),
+  updateAppointment: safeAction((id, updates) => set((state) => {
+    notify.success('Cita actualizada')
+    return { appointments: state.appointments.map((a) => a.id === id ? { ...a, ...updates } : a) }
+  })),
+  deleteAppointment: safeAction((id) => set((state) => {
+    notify.success('Cita eliminada')
+    return { appointments: state.appointments.filter((a) => a.id !== id) }
+  })),
+
   addPrescription: safeAction((prescription) => set((state) => {
     notify.success('Prescripción guardada')
     return {

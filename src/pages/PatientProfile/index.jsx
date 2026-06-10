@@ -1,1 +1,0 @@
-export { PatientProfileView } from './View'

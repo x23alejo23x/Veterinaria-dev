@@ -1,3 +1,3 @@
-export { useFetch, useMutation } from './useFetch'
-export { useDebounce }           from './useDebounce'
-export { useConfirm }            from './useConfirm.jsx'
+export { useFetch, useMutation } from '@/hooks/useFetch'
+export { useDebounce }           from '@/hooks/useDebounce'
+export { useConfirm }            from '@/hooks/useConfirm.jsx'

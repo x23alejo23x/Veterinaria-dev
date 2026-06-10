@@ -1,6 +1,6 @@
 import { Sparkles } from 'lucide-react'
-import { PageContainer } from '../../../components/layout/PageContainer'
-import { Badge } from '../../../components/ui/Badge'
+import { PageContainer } from '@/components/layout/PageContainer'
+import { Badge } from '@/components/ui/Badge'
 
 export function ComingSoon({ eyebrow, title, icon: Icon }) {
   return (

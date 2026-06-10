@@ -120,6 +120,18 @@ export const billingData = {
   ],
 }
 
+export const appointmentsSeed = [
+  { id: 'apt-001', patientId: 'luna',  patientName: 'Luna',  ownerId: 'camila-torres', ownerName: 'Camila Torres', vet: 'Dra. Valentina Rios', date: '2025-06-10', time: '09:00', type: 'Control',    status: 'Confirmada', notes: 'Control post-gastritis' },
+  { id: 'apt-002', patientId: 'milo',  patientName: 'Milo',  ownerId: 'andres-gomez',  ownerName: 'Andres Gomez',  vet: 'Dr. Mateo Silva',     date: '2025-06-10', time: '10:30', type: 'General',    status: 'Pendiente',  notes: '' },
+  { id: 'apt-003', patientId: 'kiara', patientName: 'Kiara', ownerId: 'sofia-mejia',   ownerName: 'Sofia Mejia',   vet: 'Dra. Valentina Rios', date: '2025-06-10', time: '11:00', type: 'Urgencia',   status: 'Confirmada', notes: 'Cojera miembro posterior' },
+  { id: 'apt-004', patientId: 'nala',  patientName: 'Nala',  ownerId: 'lucas-parra',   ownerName: 'Lucas Parra',   vet: 'Dr. Mateo Silva',     date: '2025-06-11', time: '08:30', type: 'Vacunación', status: 'Pendiente',  notes: 'Refuerzo anual' },
+  { id: 'apt-005', patientId: 'thor',  patientName: 'Thor',  ownerId: 'camila-torres', ownerName: 'Camila Torres', vet: 'Dra. Valentina Rios', date: '2025-06-11', time: '15:00', type: 'General',    status: 'Confirmada', notes: '' },
+  { id: 'apt-006', patientId: 'rocky', patientName: 'Rocky', ownerId: 'sofia-mejia',   ownerName: 'Sofia Mejia',   vet: 'Dr. Mateo Silva',     date: '2025-06-12', time: '09:30', type: 'Cirugía',    status: 'Confirmada', notes: 'Extirpación masa cutánea' },
+  { id: 'apt-007', patientId: 'bella', patientName: 'Bella', ownerId: 'lucas-parra',   ownerName: 'Lucas Parra',   vet: 'Dra. Valentina Rios', date: '2025-06-12', time: '14:00', type: 'Control',    status: 'Pendiente',  notes: '' },
+  { id: 'apt-008', patientId: 'cleo',  patientName: 'Cleo',  ownerId: 'andres-gomez',  ownerName: 'Andres Gomez',  vet: 'Dr. Mateo Silva',     date: '2025-06-09', time: '10:00', type: 'General',    status: 'Completada', notes: 'Sin novedades' },
+  { id: 'apt-009', patientId: 'max',   patientName: 'Max',   ownerId: 'sofia-mejia',   ownerName: 'Sofia Mejia',   vet: 'Dra. Valentina Rios', date: '2025-06-09', time: '11:30', type: 'Urgencia',   status: 'Cancelada',  notes: 'Propietario canceló' },
+]
+
 export const novedades = [
   { tipo: 'paciente',     texto: 'Thor registrado como nuevo paciente',        tiempo: 'Hace 2h',    tono: 'blue' },
   { tipo: 'prescripcion', texto: 'Prescripción emitida para Luna · Omeprazol', tiempo: 'Hace 3h',    tono: 'green' },

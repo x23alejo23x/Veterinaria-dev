@@ -1,4 +1,4 @@
-export { ErrorState } from './ErrorState'
-export { Loading } from './Loading'
-export { Skeleton } from './Skeleton'
-export { SuccessState } from './SuccessState'
+export { ErrorState } from '@/components/feedback/ErrorState'
+export { Loading } from '@/components/feedback/Loading'
+export { Skeleton } from '@/components/feedback/Skeleton'
+export { SuccessState } from '@/components/feedback/SuccessState'

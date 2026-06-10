@@ -14,7 +14,7 @@ export function PageContainer({ eyebrow, title, description, actions, children, 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             {eyebrow && (
-              <p className="mb-0.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-blue-600">{eyebrow}</p>
+              <p className="mb-0.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-violet-600 dark:text-violet-400">{eyebrow}</p>
             )}
             <h1 className="text-xl font-bold tracking-tight text-[var(--text)] sm:text-2xl">{title}</h1>
             {description && (

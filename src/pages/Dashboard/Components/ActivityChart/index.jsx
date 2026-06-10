@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-import { visitChart } from "../../../../constants";
-import { Card } from "../../../../components/ui/Card";
+import { visitChart } from "@/constants";
+import { Card } from "@/components/ui/Card";
 
 const total = visitChart.reduce((s, d) => s + d.citas, 0);
 const totalAltas = visitChart.reduce((s, d) => s + d.altas, 0);
@@ -65,7 +65,7 @@ export function ActivityChart() {
           {
             label: "Total citas",
             value: total,
-            color: "text-blue-600",
+            color: "text-violet-600",
             bg: "bg-blue-50 dark:bg-blue-950/30",
           },
           {
@@ -242,7 +242,7 @@ export function ActivityChart() {
                   <td className="px-4 py-2.5 font-medium text-[var(--text)]">
                     {d.day}
                   </td>
-                  <td className="px-4 py-2.5 text-right text-blue-600 font-semibold">
+                  <td className="px-4 py-2.5 text-right text-violet-600 font-semibold">
                     {d.citas}
                   </td>
                   <td className="px-4 py-2.5 text-right text-emerald-600 font-semibold">

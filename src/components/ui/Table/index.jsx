@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { ChevronLeft, ChevronRight, ChevronsUpDown } from 'lucide-react'
-import { TableSkeleton } from '../../../components/feedback/Skeleton'
+import { TableSkeleton } from '@/components/feedback/Skeleton'
 
 export function Table({ columns, rows, pageSize = 10, loading = false }) {
   const [page, setPage] = useState(1)
@@ -61,8 +61,8 @@ export function Table({ columns, rows, pageSize = 10, loading = false }) {
         </table>
       </div>
 
-      {/* Body scrollable */}
-      <div className="min-h-0 flex-1 overflow-y-auto bg-[var(--surface)]">
+      {/* Body scrollable — overflow-x en mobile */}
+      <div className="min-h-0 flex-1 overflow-x-auto overflow-y-auto bg-[var(--surface)]">
         <table className="w-full border-collapse text-left" style={{ tableLayout: 'fixed' }}>
           <colgroup>
             {columns.map((col) => (
@@ -121,7 +121,7 @@ export function Table({ columns, rows, pageSize = 10, loading = false }) {
             {pageNums.map((n,i) => n==='…'
               ? <span key={`e${i}`} className="px-1 text-xs text-[var(--text-3)]">…</span>
               : <button key={n} onClick={() => setPage(n)}
-                  className={`grid h-7 w-7 place-items-center rounded-lg text-xs font-semibold transition ${n===safePage ? 'bg-blue-600 text-white' : 'text-[var(--text-2)] hover:bg-[var(--surface-2)]'}`}>
+                  className={`grid h-7 w-7 place-items-center rounded-lg text-xs font-semibold transition ${n===safePage ? 'bg-gradient-to-br from-violet-600 to-indigo-600 text-white' : 'text-[var(--text-2)] hover:bg-[var(--surface-2)]'}`}>
                   {n}
                 </button>
             )}
