@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { Calculator, Clock, Edit3, FlaskConical, ListChecks, Pill, Plus, Search, Tag, Trash2 } from 'lucide-react'
 import { PageContainer } from '@/components/layout/PageContainer'
 import { Button } from '@/components/ui/Button'
+import { useConfirm } from '@/hooks/useConfirm.jsx'
 import { useAppStore } from '@/store/appStore'
 import { emptyMed, getCat, fmt } from '@/pages/Medications/constants'
 import { MedicationFormModal } from '@/pages/Medications/Components/MedicationFormModal'
@@ -28,6 +29,7 @@ export function MedicationsView() {
   const updateMedication = useAppStore((s) => s.updateMedication)
   const deleteMedication = useAppStore((s) => s.deleteMedication)
   const addPrescription  = useAppStore((s) => s.addPrescription)
+  const { confirm, ConfirmDialog } = useConfirm()
 
   // State
   const [activeTab, setActiveTab] = useState('catalog')
@@ -47,6 +49,17 @@ export function MedicationsView() {
   const openNew  = () => { setMedForm(emptyMed); setMedModal({ mode: 'create' }) }
   const openEdit = (row) => { setMedForm(row); setMedModal({ mode: 'edit', data: row }) }
   const closeMed = () => setMedModal(null)
+  const handleDeleteMed = async (med) => {
+    const rxCount = prescriptions.filter((rx) => rx.medicationId === med.id).length
+    const ok = await confirm({
+      title: `Eliminar ${med.name}`,
+      message: rxCount > 0
+        ? `Este medicamento tiene ${rxCount} prescripción(es) asociada(s). Se eliminarán también.`
+        : 'Esta acción no se puede deshacer.',
+      danger: true,
+    })
+    if (ok) deleteMedication(med.id)
+  }
 
   return (
     <PageContainer eyebrow="Medicaciones" title="Medicamentos" description="Catálogo, calculadora de dosis y prescripciones activas."
@@ -75,7 +88,7 @@ export function MedicationsView() {
         </div>
 
         {/* Catálogo */}
-        {activeTab === 'catalog' && <CatalogTab filtered={filtered} search={search} setSearch={setSearch} openEdit={openEdit} deleteMedication={deleteMedication} />}
+        {activeTab === 'catalog' && <CatalogTab filtered={filtered} search={search} setSearch={setSearch} openEdit={openEdit} onDelete={handleDeleteMed} />}
 
         {/* Prescripciones */}
         {activeTab === 'prescriptions' && <PrescriptionsTab rxRows={rxRows} medications={medications} />}
@@ -86,13 +99,14 @@ export function MedicationsView() {
 
       <DoseCalculatorModal isOpen={calcOpen} onClose={() => setCalcOpen(false)} doseForm={doseForm} setDoseForm={setDoseForm}
         patients={patients} medications={medications} onSave={addPrescription} />
+      <ConfirmDialog />
     </PageContainer>
   )
 }
 
 /* ── Sub-componentes locales (específicos de esta vista) ── */
 
-function CatalogTab({ filtered, search, setSearch, openEdit, deleteMedication }) {
+function CatalogTab({ filtered, search, setSearch, openEdit, onDelete }) {
   return (
     <div className="flex flex-1 min-h-0 flex-col">
       <div className="my-3 shrink-0 flex items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2 focus-within:border-violet-400 focus-within:ring-2 focus-within:ring-violet-400/15">
@@ -123,7 +137,7 @@ function CatalogTab({ filtered, search, setSearch, openEdit, deleteMedication })
                     <td className="px-4 py-3.5"><span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold ${c.badge}`}>{med.category}</span></td>
                     <td className="px-4 py-3.5"><div className="flex items-center justify-end gap-1">
                       <button onClick={() => openEdit(med)} className="grid h-8 w-8 place-items-center rounded-lg text-[var(--text-3)] transition hover:bg-[var(--surface-2)] hover:text-[var(--text)]"><Edit3 size={14} /></button>
-                      <button onClick={() => deleteMedication(med.id)} className="grid h-8 w-8 place-items-center rounded-lg text-[var(--text-3)] transition hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-500/10"><Trash2 size={14} /></button>
+                      <button onClick={() => onDelete(med)} className="grid h-8 w-8 place-items-center rounded-lg text-[var(--text-3)] transition hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-500/10"><Trash2 size={14} /></button>
                     </div></td>
                   </tr>
                 )})}

@@ -16,3 +16,21 @@ export const getGrad = (name) => GRADIENTS[(name.charCodeAt(0) - 65) % GRADIENTS
 export const speciesEmoji = { Canino: '🐕', Felino: '🐱', Ave: '🦜', Reptil: '🦎', Otro: '🐾' }
 
 export const TABS = ['Datos', 'Historial', 'Medicación', 'Propietario']
+
+/* ── Estado de prescripción — punto de color por valor ── */
+export const PRESCRIPTION_STATUS_CFG = {
+  Activa:     { dot: 'bg-emerald-500' },
+  Finalizada: { dot: 'bg-slate-400'   },
+  Suspendida: { dot: 'bg-rose-500'    },
+}
+
+/* ── Lista provisional de veterinarios ──
+   Cuando haya backend: reemplazar con llamada a GET /users?role=vet
+   La lista incluye el nombre tal como aparece en la sesión (sessionService.get().name)
+   para que el pre-seleccionado coincida exactamente. ── */
+export const VETS_SEED = [
+  'Dra. Valentina Rios',
+  'Dr. Mateo Silva',
+  'Dra. Ana Gutierrez',
+  'Dr. Carlos Mendez',
+]

@@ -1,13 +1,13 @@
 import { Link } from 'react-router-dom'
 import { ArrowLeft, Calendar, FileText, Tag } from 'lucide-react'
-import { notify } from '@/utils/notify'
 import { getGrad, speciesEmoji, statusCfg } from '@/pages/PatientProfile/constants'
 
 /**
  * ProfileHero — banner de cabecera del perfil del paciente.
- * @param {Object} patient — datos del paciente del store
+ * @param {Object}   patient    — datos del paciente del store
+ * @param {Function} onNewNote  — abre el modal de nueva nota clínica
  */
-export function ProfileHero({ patient }) {
+export function ProfileHero({ patient, onNewNote }) {
   const status = statusCfg[patient.status] ?? statusCfg.Estable
   return (
     <div className={`relative overflow-hidden bg-gradient-to-br ${getGrad(patient.name)} px-6 py-5`}>
@@ -48,7 +48,7 @@ export function ProfileHero({ patient }) {
           <Link to="/pacientes" className="inline-flex items-center gap-1.5 rounded-xl bg-white/20 px-3 py-2 text-sm font-semibold text-white backdrop-blur-sm transition hover:bg-white/30">
             <ArrowLeft size={14} /> Volver
           </Link>
-          <button onClick={() => notify.success('Nota clínica preparada')}
+          <button onClick={onNewNote}
             className="inline-flex items-center gap-1.5 rounded-xl bg-white px-3 py-2 text-sm font-bold text-[var(--text)] shadow-lg transition hover:bg-white/90">
             <FileText size={14} /> Nueva nota
           </button>

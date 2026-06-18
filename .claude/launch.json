@@ -7,6 +7,13 @@
       "runtimeArgs": ["run", "dev"],
       "port": 6358,
       "autoPort": false
+    },
+    {
+      "name": "nura-landing",
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": ["/c", "cd /d C:\\MisProgramas\\Proyectos\\Personal\\nura-landing && npm run dev -- --port 4321"],
+      "port": 4321,
+      "autoPort": false
     }
   ]
 }

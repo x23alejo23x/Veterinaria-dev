@@ -28,6 +28,7 @@ export const useAppStore = create((set) => ({
   medicationsCatalog: medicationsSeed,
   prescriptions:    prescriptionsSeed,
   appointments:     appointmentsSeed,
+  clinicalNotes:    [],
 
   /* ── Search / filter state ── */
   patientSearch:   '',
@@ -180,5 +181,30 @@ export const useAppStore = create((set) => ({
         status: 'Activa',
       }, ...state.prescriptions],
     }
+  })),
+
+  updatePrescription: safeAction((id, updates) => set((state) => {
+    notify.success('Prescripción actualizada')
+    return { prescriptions: state.prescriptions.map((rx) => rx.id === id ? { ...rx, ...updates } : rx) }
+  })),
+
+  deletePrescription: safeAction((id) => set((state) => {
+    notify.success('Prescripción eliminada')
+    return { prescriptions: state.prescriptions.filter((rx) => rx.id !== id) }
+  })),
+
+  addClinicalNote: safeAction((note) => set((state) => {
+    notify.success('Nota clínica guardada')
+    return { clinicalNotes: [{ ...note, id: createId('note') }, ...state.clinicalNotes] }
+  })),
+
+  updateClinicalNote: safeAction((id, updates) => set((state) => {
+    notify.success('Nota actualizada')
+    return { clinicalNotes: state.clinicalNotes.map((n) => n.id === id ? { ...n, ...updates } : n) }
+  })),
+
+  deleteClinicalNote: safeAction((id) => set((state) => {
+    notify.success('Nota eliminada')
+    return { clinicalNotes: state.clinicalNotes.filter((n) => n.id !== id) }
   })),
 }))

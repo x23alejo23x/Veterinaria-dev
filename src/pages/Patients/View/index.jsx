@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Edit3, Eye, Plus, Trash2 } from 'lucide-react'
+import { Edit3, Eye, Pill, Plus, Trash2 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { PageContainer } from '@/components/layout/PageContainer'
 import { Button } from '@/components/ui/Button'
@@ -11,6 +11,7 @@ import { useConfirm } from '@/hooks/useConfirm.jsx'
 import { useAppStore } from '@/store/appStore'
 import { emptyPatient, PatientModal } from '@/pages/Patients/Components/PatientModal'
 import { SpeciesFilter } from '@/pages/Patients/Components/SpeciesFilter'
+import { PrescriptionModal } from '@/pages/PatientProfile/Components/PrescriptionModal'
 
 /* ── Helpers locales (< 5 líneas cada uno → no merecen archivo propio) ── */
 const AVATAR_GRADS = ['from-blue-500 to-blue-700','from-violet-500 to-purple-700','from-emerald-500 to-teal-600','from-rose-400 to-pink-600','from-amber-400 to-orange-500','from-sky-400 to-cyan-600']
@@ -25,19 +26,22 @@ const STATUS_CLS = {
 }
 
 export function PatientsView() {
-  const [modal, setModal] = useState(null)
+  const [modal,   setModal]   = useState(null)
+  const [rxModal, setRxModal] = useState(null) // patient object | null
   const { confirm, ConfirmDialog } = useConfirm()
 
   // Store
-  const patientsAll   = useAppStore((s) => s.patients)
-  const owners        = useAppStore((s) => s.owners)
-  const search        = useAppStore((s) => s.patientSearch)
-  const filter        = useAppStore((s) => s.patientFilter)
-  const setSearch     = useAppStore((s) => s.setPatientSearch)
-  const setFilter     = useAppStore((s) => s.setPatientFilter)
-  const addPatient    = useAppStore((s) => s.addPatient)
-  const updatePatient = useAppStore((s) => s.updatePatient)
-  const deletePatient = useAppStore((s) => s.deletePatient)
+  const patientsAll      = useAppStore((s) => s.patients)
+  const owners           = useAppStore((s) => s.owners)
+  const medications      = useAppStore((s) => s.medicationsCatalog)
+  const search           = useAppStore((s) => s.patientSearch)
+  const filter           = useAppStore((s) => s.patientFilter)
+  const setSearch        = useAppStore((s) => s.setPatientSearch)
+  const setFilter        = useAppStore((s) => s.setPatientFilter)
+  const addPatient       = useAppStore((s) => s.addPatient)
+  const updatePatient    = useAppStore((s) => s.updatePatient)
+  const deletePatient    = useAppStore((s) => s.deletePatient)
+  const addPrescription  = useAppStore((s) => s.addPrescription)
 
   const debouncedSearch = useDebounce(search, 280)
   const patients = useMemo(() => patientsAll.filter((p) => {
@@ -67,10 +71,11 @@ export function PatientsView() {
     { key: 'sex', label: 'Sexo', width: '90px' },
     { key: 'status', label: 'Estado', width: '130px', render: (row) => <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${STATUS_CLS[row.status] ?? STATUS_CLS.Estable}`}>{row.status}</span> },
     {
-      key: 'actions', label: '', width: '100px', align: 'right',
+      key: 'actions', label: '', width: '120px', align: 'right',
       render: (row) => (
         <div className="flex items-center justify-end gap-1">
-          <Link to={`/pacientes/${row.id}`} className="grid h-8 w-8 place-items-center rounded-lg text-[var(--text-3)] transition hover:bg-[var(--surface-2)] hover:text-[var(--text)]" aria-label="Ver"><Eye size={14} /></Link>
+          <Link to={`/pacientes/${row.id}`} className="grid h-8 w-8 place-items-center rounded-lg text-[var(--text-3)] transition hover:bg-[var(--surface-2)] hover:text-[var(--text)]" aria-label="Ver perfil"><Eye size={14} /></Link>
+          <button title="Nueva prescripción" onClick={() => setRxModal(row)} className="grid h-8 w-8 place-items-center rounded-lg text-[var(--text-3)] transition hover:bg-violet-50 hover:text-violet-600 dark:hover:bg-violet-500/10"><Pill size={14} /></button>
           <button onClick={() => setModal({ mode: 'edit', data: row })} className="grid h-8 w-8 place-items-center rounded-lg text-[var(--text-3)] transition hover:bg-[var(--surface-2)] hover:text-[var(--text)]"><Edit3 size={14} /></button>
           <button onClick={async () => { if (await confirm({ title: `Eliminar ${row.name}`, message: 'Esta acción no se puede deshacer.', danger: true })) deletePatient(row.id) }} className="grid h-8 w-8 place-items-center rounded-lg text-[var(--text-3)] transition hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-500/10"><Trash2 size={14} /></button>
         </div>
@@ -93,6 +98,14 @@ export function PatientsView() {
         <PatientModal key={modal.data?.id ?? modal.mode} modal={modal} owners={owners}
           onClose={() => setModal(null)}
           onSave={(data, mode, id) => { mode === 'edit' && id ? updatePatient(id, data) : addPatient(data); setModal(null) }}
+        />
+      )}
+      {rxModal && (
+        <PrescriptionModal
+          patient={rxModal}
+          medications={medications}
+          onClose={() => setRxModal(null)}
+          onSave={(data, mode, rxId) => { mode === 'edit' ? null : addPrescription(data); setRxModal(null) }}
         />
       )}
       <ConfirmDialog />

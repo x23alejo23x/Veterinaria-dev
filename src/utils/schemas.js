@@ -61,6 +61,24 @@ export const appointmentSchema = z.object({
   notes:       z.string().max(300, 'Máximo 300 caracteres').optional(),
 })
 
+/* ── Prescripción ── */
+export const prescriptionSchema = z.object({
+  patientId:    z.string().min(1, 'Selecciona un paciente'),
+  medicationId: z.string().min(1, 'Selecciona un medicamento'),
+  dose:         z.string().min(1, 'Ingresa la dosis'),
+  frequency:    z.string().min(1, 'Selecciona la frecuencia'),
+  duration:     z.string().min(1, 'Ingresa la duración'),
+  notes:        z.string().max(300).optional(),
+})
+
+/* ── Nota clínica ── */
+export const noteSchema = z.object({
+  diagnosis:  z.string().min(2, 'Mínimo 2 caracteres').max(120, 'Máximo 120 caracteres'),
+  procedure:  z.string().min(2, 'Describe el procedimiento').max(200),
+  vet:        z.string().min(2, 'Ingresa el nombre del veterinario').max(80),
+  notes:      z.string().max(500, 'Máximo 500 caracteres').optional(),
+})
+
 /* ── Empresa (Admin SaaS) ── */
 export const companySchema = z.object({
   name:        z.string().min(2, 'Mínimo 2 caracteres').max(80),
