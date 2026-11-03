@@ -1,4 +1,9 @@
 export const statusCfg = {
+  // Valores del backend
+  activo:   { cls: 'bg-emerald-500', label: 'Activo'    },
+  inactivo: { cls: 'bg-slate-500',   label: 'Inactivo'  },
+  critico:  { cls: 'bg-rose-500',    label: 'Crítico'   },
+  // Valores legacy del store (seed data)
   Estable:     { cls: 'bg-emerald-500', label: 'Estable' },
   Tratamiento: { cls: 'bg-amber-500',   label: 'Tratamiento' },
   Observacion: { cls: 'bg-blue-500',    label: 'Observación' },

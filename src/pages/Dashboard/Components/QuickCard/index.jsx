@@ -16,35 +16,30 @@ export function QuickCard({ icon: Icon, label, value, sub, gradient, to, pet }) 
   return (
     <Link
       to={to}
-      className={`group relative flex flex-col justify-between overflow-hidden rounded-2xl p-4 transition-all duration-200 hover:scale-[1.03] hover:-translate-y-1 hover:shadow-[0_12px_32px_rgba(0,0,0,0.2)] ${gradient}`}
-      style={{ minHeight: 110 }}
+      className={`group relative flex items-center gap-3 overflow-hidden rounded-2xl px-4 py-3 transition-all duration-200 hover:scale-[1.02] hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.18)] ${gradient}`}
     >
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent" />
-      <div
-        className="pointer-events-none absolute -bottom-1 right-1 select-none leading-none transition-transform duration-300 group-hover:scale-110 group-hover:-translate-y-1"
-        style={{ fontSize: 62, filter: 'drop-shadow(0 4px 10px rgba(0,0,0,0.18))', opacity: 0.92 }}
+      <div className="pointer-events-none absolute -right-2 -bottom-2 select-none leading-none transition-transform duration-300 group-hover:scale-110"
+        style={{ fontSize: 44, filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.15))', opacity: 0.85 }}
         aria-hidden="true"
       >
         {pet}
       </div>
-      <div className="relative flex items-start justify-between">
-        <div className="grid h-9 w-9 place-items-center rounded-xl bg-white/20 backdrop-blur-sm">
-          <Icon size={18} className="text-white" />
-        </div>
-        <ArrowUpRight size={15} className="text-white/40 transition-all duration-200 group-hover:text-white group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+      <div className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-white/20 backdrop-blur-sm">
+        <Icon size={16} className="text-white" />
       </div>
-      <div className="relative">
+      <div className="relative flex-1 min-w-0">
         <motion.p
-          className="text-3xl font-bold text-white tabular-nums"
+          className="text-2xl font-bold text-white tabular-nums leading-none"
           initial={{ opacity: 0, scale: 0.5 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
         >
           {value}
         </motion.p>
-        <p className="text-sm font-semibold text-white/80">{label}</p>
-        {sub && <p className="mt-0.5 text-[11px] text-white/60">{sub}</p>}
+        <p className="text-xs font-semibold text-white/80 mt-0.5">{label}</p>
       </div>
+      <ArrowUpRight size={14} className="shrink-0 text-white/30 transition-all duration-200 group-hover:text-white" />
     </Link>
   )
 }

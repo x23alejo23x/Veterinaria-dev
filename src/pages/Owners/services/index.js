@@ -8,8 +8,13 @@ import { paginated, single } from '@/utils/apiResponse'
 
 const BASE = '/owners'
 
-export function useOwners(params = {}) {
-  return useFetch(BASE, { params, transform: paginated, fallback: { items: [], total: 0 } })
+// Solo envía los campos que el backend acepta
+export function toApiPayload(data) {
+  return { name: data.name, email: data.email, phone: data.phone, city: data.city }
+}
+
+export function useOwners(params = {}, options = {}) {
+  return useFetch(BASE, { params, transform: paginated, fallback: { items: [], total: 0 }, ...options })
 }
 
 export function useOwner(id) {
@@ -18,12 +23,12 @@ export function useOwner(id) {
 
 export function useCreateOwner(options = {}) {
   const m = useMutation('POST', BASE, { successMsg: 'Propietario creado', ...options })
-  return { create: m.mutate, loading: m.loading, error: m.error }
+  return { create: (data) => m.mutate(toApiPayload(data)), loading: m.loading, error: m.error }
 }
 
 export function useUpdateOwner(id, options = {}) {
   const m = useMutation('PUT', `${BASE}/${id}`, { successMsg: 'Propietario actualizado', ...options })
-  return { update: m.mutate, loading: m.loading }
+  return { update: (data) => m.mutate(toApiPayload(data)), loading: m.loading }
 }
 
 export function useDeleteOwner(options = {}) {

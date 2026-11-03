@@ -9,8 +9,8 @@ import { Select } from '@/components/ui/Select'
 import { patientSchema } from '@/utils/schemas'
 
 export const emptyPatient = {
-  name: '', species: 'Canino', breed: '', age: '', weight: '',
-  sex: 'Macho', status: 'Estable', ownerId: '', color: '',
+  name: '', species: 'Canino', breed: '', age: 0, weight: '',
+  sex: 'Macho', status: 'activo', ownerId: '', color: '',
   microchip: '', sterilized: false,
 }
 
@@ -56,14 +56,19 @@ export function PatientModal({ modal, owners, onClose, onSave }) {
             </FormField>
             <FormField error={errors.breed}><Input placeholder="Raza *" {...register('breed')} /></FormField>
             <Input placeholder="Color / pelaje" {...register('color')} />
-            <Input placeholder="Edad (ej: 3 años)" {...register('age')} />
+            <FormField error={errors.age}><Input type="number" min="0" step="1" placeholder="Edad (años) *" {...register('age')} /></FormField>
             <FormField error={errors.weight}><Input type="number" step="0.1" min="0" placeholder="Peso (kg)" {...register('weight')} /></FormField>
             <FormField error={errors.sex}>
               <Select options={['Macho','Hembra']} value={watch('sex')}
                 onChange={(e) => setValue('sex', e.target.value, { shouldValidate: true })} placeholder="Sexo *" />
             </FormField>
             <FormField error={errors.status}>
-              <Select options={['Estable','Tratamiento','Observacion','Preventivo','Alta']}
+              <Select
+                options={[
+                  { value: 'activo',   label: 'Activo'   },
+                  { value: 'inactivo', label: 'Inactivo' },
+                  { value: 'critico',  label: 'Crítico'  },
+                ]}
                 value={watch('status')} onChange={(e) => setValue('status', e.target.value, { shouldValidate: true })}
                 placeholder="Estado *" />
             </FormField>

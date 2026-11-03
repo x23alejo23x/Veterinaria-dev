@@ -19,6 +19,7 @@ src/
 ├── components/
 │   ├── layout/        # AppShell, Sidebar, Header, Navbar, PageContainer
 │   ├── ui/            # Button, Card, Input, Select, Table, Modal, Badge, FormField, Combobox
+│   ├── charts/        # BarChart, LineChart, DonutChart, HBarChart + theme.js (Recharts)
 │   └── feedback/      # ErrorBoundary, Loading, Skeleton
 ├── pages/             # Una carpeta por vista (ver patrón de páginas abajo)
 ├── hooks/             # useDebounce, useConfirm, useFetch, useMutation
@@ -116,6 +117,26 @@ Configurado en `vite.config.js` → `resolve.alias { '@': src/ }`.
 - Nunca usar colores hardcoded como `text-slate-900` — usar `text-[var(--text)]`
 - Gradientes de colores para avatares: `from-blue-500 to-blue-700`, etc.
 
+## Gráficos — `src/components/charts/` (Recharts)
+
+Todos los gráficos de datos usan los wrappers de `@/components/charts`. **No hacer gráficos con divs/SVG a mano.**
+
+| Componente   | Uso                                            | Props clave                                   |
+|--------------|------------------------------------------------|-----------------------------------------------|
+| `BarChart`   | series por categoría, agrupadas o `stacked`    | `data, xKey, series=[{key,label}], formatter` |
+| `LineChart`  | tendencia; `dashed` para contexto, `area` 1 serie | `data, xKey, series, formatter, tickFormatter` |
+| `DonutChart` | parte-del-todo (máx. 5, resto → "Otros")       | `data=[{label,value}], center, legendPosition` |
+| `HBarChart`  | ranking top N, un solo tono, `emphasis`        | `data=[{label,value}], max, tone, onBarClick`  |
+
+**Reglas:**
+- Paleta y formatters en `charts/theme.js` (`useChartTheme`, `fmtCOP`, `fmtCompact`, `fmtInt`). Paleta categórica validada para light/dark y daltonismo — **no añadir colores nuevos**; máximo 5 series, luego agrupar.
+- El color sigue a la entidad en orden fijo (`series[i]` → `categorical[i]`); nunca se cicla ni se reasigna al filtrar.
+- Texto (ejes, tooltips, leyendas) siempre con `var(--text*)`, nunca con el color de la serie.
+- Un solo eje Y. Dos medidas de escala distinta → dos gráficos.
+- Los agregados los calcula el backend (`GROUP BY`) y devuelve series listas. El front no suma registros.
+- Cada reporte va dentro de `pages/Reports/Components/ReportCard` (título, loading, vacío, error).
+- Ejemplos: `pages/Dashboard/Components/ActivityChart`, `pages/Reports/Components/*`.
+
 ## Formularios
 - Siempre usar `react-hook-form` + `zodResolver` + esquemas de `src/utils/schemas.js`
 - Mostrar errores con `<FormField error={errors.campo}>`
@@ -138,6 +159,7 @@ Configurado en `vite.config.js` → `resolve.alias { '@': src/ }`.
 /pacientes     → PatientsView + /pacientes/:id PatientProfileView
 /medicaciones  → MedicationsView
 /propietarios  → OwnersView
+/reportes      → ReportsView (7 reportes con filtro de rango 3m/6m/12m)
 /admin         → AdminView (requiredRole="admin")
 ```
 

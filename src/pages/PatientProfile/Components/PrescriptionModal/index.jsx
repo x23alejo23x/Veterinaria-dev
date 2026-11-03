@@ -29,13 +29,13 @@ const DURATIONS = [
  */
 export function PrescriptionModal({ prescription, patient, patients = [], medications = [], onClose, onSave }) {
   const isEdit = Boolean(prescription)
-  const today  = new Date().toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: 'numeric' })
+  const today  = new Date().toISOString().split('T')[0]
 
   const { register, handleSubmit, setValue, watch, formState: { errors, isSubmitting } } = useForm({
     resolver: zodResolver(prescriptionSchema),
     defaultValues: {
-      patientId:    patient?.id ?? prescription?.patientId ?? '',
-      medicationId: prescription?.medicationId ?? '',
+      patientId:    String(patient?.id ?? prescription?.patientId ?? ''),
+      medicationId: String(prescription?.medicationId ?? ''),
       dose:         prescription?.dose         ?? '',
       frequency:    prescription?.frequency    ?? '',
       duration:     prescription?.duration     ?? '',
@@ -43,7 +43,7 @@ export function PrescriptionModal({ prescription, patient, patients = [], medica
     },
   })
 
-  const selectedMed = medications.find((m) => m.id === watch('medicationId'))
+  const selectedMed = medications.find((m) => String(m.id) === watch('medicationId'))
 
   const onSubmit = (data) => {
     onSave(
@@ -103,7 +103,7 @@ export function PrescriptionModal({ prescription, patient, patients = [], medica
           <p className="mb-2 text-[10px] font-semibold uppercase tracking-widest text-[var(--text-3)]">Medicamento</p>
           <FormField error={errors.medicationId}>
             <Select
-              options={medications.map((m) => ({ value: m.id, label: `${m.name} — ${m.concentration} ${m.unit}` }))}
+              options={medications.map((m) => ({ value: String(m.id), label: `${m.name} — ${m.concentration}${m.unit ? ' ' + m.unit : ''}` }))}
               value={watch('medicationId')}
               onChange={(e) => setValue('medicationId', e.target.value, { shouldValidate: true })}
               placeholder="Buscar medicamento…"

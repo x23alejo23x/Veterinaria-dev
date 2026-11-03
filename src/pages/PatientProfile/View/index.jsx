@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { Calendar, Edit3, MapPin, Phone, Pill, Plus, Stethoscope, Tag, Trash2 } from 'lucide-react'
+import { Calendar, Edit3, Loader2, MapPin, Phone, Pill, Plus, Stethoscope, Tag, Trash2 } from 'lucide-react'
 import { Select } from '@/components/ui/Select'
 import { medicalTimeline } from '@/constants'
 import { useAppStore } from '@/store/appStore'
@@ -10,6 +10,21 @@ import { ProfileHero } from '@/pages/PatientProfile/Components/ProfileHero'
 import { ProfileSidebar } from '@/pages/PatientProfile/Components/ProfileSidebar'
 import { NoteModal } from '@/pages/PatientProfile/Components/NoteModal'
 import { PrescriptionModal } from '@/pages/PatientProfile/Components/PrescriptionModal'
+import { useMutation } from '@/hooks/useFetch'
+import { usePatient } from '@/pages/Patients/services'
+import { useOwner } from '@/pages/Owners/services'
+import { useMedications, usePrescriptions, useCreatePrescription, useDeletePrescription, toPrescriptionPayload } from '@/pages/Medications/services'
+
+// Normaliza snake_case del backend a camelCase para los componentes del perfil
+function normalizePatient(raw) {
+  if (!raw) return null
+  return {
+    ...raw,
+    ownerId:   raw.owner_id   ?? raw.ownerId,
+    nextVisit: raw.next_visit ?? raw.nextVisit,
+    avatarColor: raw.avatar_color ?? raw.avatarColor,
+  }
+}
 
 export function PatientProfileView() {
   const { id }           = useParams()
@@ -18,29 +33,43 @@ export function PatientProfileView() {
   const [noteModal, setNoteModal] = useState(false)
   const { confirm, ConfirmDialog } = useConfirm()
 
-  const patients            = useAppStore((s) => s.patients)
-  const owners              = useAppStore((s) => s.owners)
-  const prescriptions       = useAppStore((s) => s.prescriptions)
-  const medications         = useAppStore((s) => s.medicationsCatalog)
+  // Datos del backend
+  const { data: rawPatient, loading: patientLoading } = usePatient(id)
+  const patient = normalizePatient(rawPatient)
+  const { data: owner } = useOwner(patient?.ownerId ?? null)
+
+  // Prescripciones del backend filtradas por paciente
+  const { data: rxData, refetch: refetchRx } = usePrescriptions({ patient_id: id }, { immediate: !!id })
+  const rx = rxData?.items ?? []
+
+  const { create: _createRx }    = useCreatePrescription({ onSuccess: () => refetchRx() })
+  const { mutate: _updateRx }    = useMutation('PUT', '/prescriptions', { successMsg: 'Prescripción actualizada', onSuccess: () => refetchRx() })
+  const { remove: _deleteRx }    = useDeletePrescription({ onSuccess: () => refetchRx() })
+
+  // Medicamentos del backend (carga lazy al montar)
+  const { data: medsData } = useMedications({ limit: 200 })
+  const medications = medsData?.items ?? []
+
+  // Store: notas clínicas (aún no conectado al backend)
   const clinicalNotes       = useAppStore((s) => s.clinicalNotes)
-  const addPrescription     = useAppStore((s) => s.addPrescription)
-  const updatePrescription  = useAppStore((s) => s.updatePrescription)
-  const deletePrescription  = useAppStore((s) => s.deletePrescription)
   const addClinicalNote     = useAppStore((s) => s.addClinicalNote)
 
-  const patient = patients.find((p) => p.id === id)
+  if (patientLoading) return (
+    <div className="flex h-full items-center justify-center gap-3 text-[var(--text-3)]">
+      <Loader2 size={22} className="animate-spin text-violet-500" /> Cargando paciente…
+    </div>
+  )
   if (!patient) return <div className="flex h-full items-center justify-center text-[var(--text-3)]">Paciente no encontrado</div>
 
-  const owner   = owners.find((o) => o.id === patient.ownerId)
   const history = [
     ...medicalTimeline.filter((h) => h.patient === patient.name),
     ...clinicalNotes.filter((n) => n.patientId === patient.id),
   ]
-  const rx      = prescriptions.filter((r) => r.patientId === patient.id)
 
   const handleSaveRx = (data, mode, rxId) => {
-    if (mode === 'edit') updatePrescription(rxId, data)
-    else addPrescription(data)
+    const payload = { ...data, patientId: patient.id }
+    if (mode === 'edit' && rxId) _updateRx(toPrescriptionPayload(payload), `/prescriptions/${rxId}`)
+    else _createRx(payload)
     setRxModal(null)
   }
 
@@ -50,7 +79,7 @@ export function PatientProfileView() {
       message: `¿Eliminar la prescripción de ${medName}? Esta acción no se puede deshacer.`,
       danger: true,
     })
-    if (ok) deletePrescription(item.id)
+    if (ok) _deleteRx(item.id)
   }
 
   return (
@@ -87,7 +116,10 @@ export function PatientProfileView() {
                 onAdd={() => setRxModal({ mode: 'create' })}
                 onEdit={(prescription) => setRxModal({ mode: 'edit', prescription })}
                 onDelete={handleDeleteRx}
-                onStatusChange={(id, status) => updatePrescription(id, { status })}
+                onStatusChange={(rxId, status) => {
+                  const item = rx.find((r) => r.id === rxId)
+                  if (item) _updateRx(toPrescriptionPayload({ ...item, status }), `/prescriptions/${rxId}`)
+                }}
               />
             )}
             {tab === 'Propietario' && owner && <PropietarioTab owner={owner} />}

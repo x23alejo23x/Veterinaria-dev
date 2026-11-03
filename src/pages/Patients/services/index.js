@@ -18,18 +18,33 @@
 import { useFetch, useMutation } from '@/hooks/useFetch'
 import { paginated, single } from '@/utils/apiResponse'
 
-// ── Endpoints (conectar cuando haya backend) ──────────────────────────────────
 const BASE = '/patients'
+
+// Convierte los datos del formulario (camelCase) al contrato del backend (snake_case)
+export function toApiPayload(data) {
+  return {
+    name:         data.name,
+    species:      data.species,
+    breed:        data.breed,
+    age:          Number(data.age),
+    weight:       Number(data.weight),
+    owner_id:     Number(data.ownerId ?? data.owner_id),
+    status:       data.status || null,
+    avatar_color: data.avatar_color || null,
+    next_visit:   data.next_visit || null,
+  }
+}
 
 /**
  * usePatients — lista paginada de pacientes.
  * @param {{ page?, limit?, species?, search? }} params
  */
-export function usePatients(params = {}) {
+export function usePatients(params = {}, options = {}) {
   return useFetch(BASE, {
     params,
     transform: paginated,
     fallback: { items: [], total: 0, page: 1, pageSize: 20 },
+    ...options,
   })
 }
 
@@ -53,7 +68,7 @@ export function useCreatePatient(options = {}) {
     successMsg: 'Paciente creado correctamente',
     ...options,
   })
-  return { create: mutation.mutate, loading: mutation.loading, error: mutation.error }
+  return { create: (data) => mutation.mutate(toApiPayload(data)), loading: mutation.loading, error: mutation.error }
 }
 
 /**
@@ -66,7 +81,7 @@ export function useUpdatePatient(id, options = {}) {
     successMsg: 'Paciente actualizado',
     ...options,
   })
-  return { update: mutation.mutate, loading: mutation.loading, error: mutation.error }
+  return { update: (data) => mutation.mutate(toApiPayload(data)), loading: mutation.loading, error: mutation.error }
 }
 
 /**

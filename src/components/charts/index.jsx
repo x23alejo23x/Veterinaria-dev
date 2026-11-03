@@ -1,0 +1,7 @@
+export { BarChart }     from '@/components/charts/BarChart'
+export { LineChart }    from '@/components/charts/LineChart'
+export { DonutChart }   from '@/components/charts/DonutChart'
+export { HBarChart }    from '@/components/charts/HBarChart'
+export { ChartTooltip } from '@/components/charts/ChartTooltip'
+export { ChartLegend }  from '@/components/charts/ChartLegend'
+// Formatters y tema: importar desde '@/components/charts/theme'

@@ -29,6 +29,7 @@ export const useAppStore = create((set) => ({
   prescriptions:    prescriptionsSeed,
   appointments:     appointmentsSeed,
   clinicalNotes:    [],
+  followUps:        [],
 
   /* ── Search / filter state ── */
   patientSearch:   '',
@@ -206,5 +207,21 @@ export const useAppStore = create((set) => ({
   deleteClinicalNote: safeAction((id) => set((state) => {
     notify.success('Nota eliminada')
     return { clinicalNotes: state.clinicalNotes.filter((n) => n.id !== id) }
+  })),
+
+  /* ── Seguimientos ── */
+  addFollowUp: safeAction((followUp) => set((state) => {
+    notify.success('Seguimiento creado')
+    return { followUps: [{ ...followUp, id: createId('fu'), createdAt: new Date().toISOString().slice(0, 10) }, ...state.followUps] }
+  })),
+
+  updateFollowUp: safeAction((id, updates) => set((state) => {
+    notify.success('Seguimiento actualizado')
+    return { followUps: state.followUps.map((f) => f.id === id ? { ...f, ...updates } : f) }
+  })),
+
+  deleteFollowUp: safeAction((id) => set((state) => {
+    notify.success('Seguimiento eliminado')
+    return { followUps: state.followUps.filter((f) => f.id !== id) }
   })),
 }))

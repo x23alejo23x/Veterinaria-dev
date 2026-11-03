@@ -1,5 +1,5 @@
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
-import { X } from 'lucide-react'
+import { Loader2, X } from 'lucide-react'
 
 /*
  * Tamaños — se incluyen con el prefijo `sm:` completo para que Tailwind v4
@@ -42,6 +42,7 @@ export function Modal({
   footer,
   size = 'md',
   maxWidth,
+  loading = false,
   children,
 }) {
   const reduced    = useReducedMotion()
@@ -129,7 +130,12 @@ export function Modal({
             </div>
 
             {/* ── Body scrollable ── */}
-            <div className="flex-1 overflow-y-auto px-5 py-4">
+            <div className="relative flex-1 overflow-y-auto px-5 py-4">
+              {loading && (
+                <div className="absolute inset-0 z-10 flex items-center justify-center rounded-b-2xl bg-[var(--surface)]/80 backdrop-blur-[2px]">
+                  <Loader2 size={28} className="animate-spin text-violet-500" />
+                </div>
+              )}
               {children}
             </div>
 

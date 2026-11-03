@@ -1,11 +1,7 @@
 import { useState } from 'react'
 import { Maximize2, Minimize2, TrendingUp } from 'lucide-react'
-import { DonutChart } from '@/pages/Dashboard/Components/DonutChart'
-
-const fmt = (n) =>
-  new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(n)
-const fmtCompact = (n) =>
-  new Intl.NumberFormat('es-CO', { notation: 'compact', maximumFractionDigits: 0 }).format(n)
+import { DonutChart } from '@/components/charts/DonutChart'
+import { fmtCOP as fmt, fmtCompact } from '@/components/charts/theme'
 
 /**
  * BillingCard — tarjeta de facturación con donut, modo compacto y expandido.
@@ -17,7 +13,8 @@ const fmtCompact = (n) =>
  */
 export function BillingCard({ mesActual, tendencia, servicios, ingresosDiarios, cobrado }) {
   const [expanded, setExpanded] = useState(false)
-  const maxMonto = Math.max(...servicios.map((s) => s.monto))
+  // Forma que espera DonutChart: [{ label, value, color }]
+  const donutData = servicios.map((s) => ({ label: s.concepto, value: s.monto, color: s.color }))
 
   return (
     <div className={`overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)] transition-all duration-300 ${expanded ? 'absolute inset-0 z-20 shadow-2xl' : ''}`}>
@@ -37,13 +34,18 @@ export function BillingCard({ mesActual, tendencia, servicios, ingresosDiarios, 
       <div className="p-4">
         {!expanded ? (
           <div className="flex flex-col items-center gap-3">
-            <div className="relative">
-              <DonutChart servicios={servicios} size={220} />
-              <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-                <p className="text-base font-bold text-[var(--text)] leading-none">{fmt(mesActual.total)}</p>
-                <p className="text-[10px] text-[var(--text-3)]">total</p>
-              </div>
-            </div>
+            <DonutChart
+              data={donutData}
+              size={180}
+              legend={false}
+              formatter={fmt}
+              center={
+                <>
+                  <p className="text-base font-bold leading-none text-[var(--text)]">{fmt(mesActual.total)}</p>
+                  <p className="text-[10px] text-[var(--text-3)]">total</p>
+                </>
+              }
+            />
             <div className="w-full grid grid-cols-3 divide-x divide-[var(--border)] border-t border-[var(--border)] pt-3">
               {[servicios[0], servicios[1]].map((s) => s && (
                 <div key={s.concepto} className="flex flex-col items-center gap-1 px-2">
@@ -66,16 +68,21 @@ export function BillingCard({ mesActual, tendencia, servicios, ingresosDiarios, 
         ) : (
           <div className="grid grid-cols-2 gap-5 divide-x divide-[var(--border)]">
             <div className="flex flex-col items-center gap-4">
-              <div className="relative">
-                <DonutChart servicios={servicios} size={220} />
-                <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-                  <p className="text-base font-bold text-[var(--text)] leading-none">{fmt(mesActual.total)}</p>
-                  <p className="text-[10px] text-[var(--text-3)]">facturado</p>
-                  <div className="mt-1 flex items-center gap-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
-                    <TrendingUp size={11} /> +{tendencia}%
-                  </div>
-                </div>
-              </div>
+              <DonutChart
+                data={donutData}
+                size={200}
+                legend={false}
+                formatter={fmt}
+                center={
+                  <>
+                    <p className="text-base font-bold leading-none text-[var(--text)]">{fmt(mesActual.total)}</p>
+                    <p className="text-[10px] text-[var(--text-3)]">facturado</p>
+                    <div className="mt-1 flex items-center gap-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
+                      <TrendingUp size={11} /> +{tendencia}%
+                    </div>
+                  </>
+                }
+              />
               <div className="w-full grid grid-cols-2 gap-2">
                 <div className="rounded-xl bg-emerald-50 dark:bg-emerald-500/10 px-3 py-2.5 text-center">
                   <p className="text-sm font-bold text-emerald-600 dark:text-emerald-400">{fmt(mesActual.pagado)}</p>

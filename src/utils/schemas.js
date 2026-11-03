@@ -11,13 +11,13 @@ export const patientSchema = z.object({
   name:       z.string().min(2, 'Mínimo 2 caracteres').max(60, 'Máximo 60 caracteres'),
   species:    z.string().min(1, 'Selecciona una especie'),
   breed:      z.string().min(1, 'Ingresa la raza'),
-  age:        z.string().optional(),
+  age:        z.coerce.number({ invalid_type_error: 'Debe ser un número' })
+               .int('Debe ser un número entero').min(0, 'Mínimo 0 años'),
   weight:     z.coerce.number({ invalid_type_error: 'Debe ser un número' })
-               .min(0.1, 'Peso mínimo 0.1 kg').max(200, 'Peso máximo 200 kg')
-               .optional().or(z.literal('')),
-  sex:        z.string().min(1, 'Selecciona el sexo'),
-  status:     z.string().min(1, 'Selecciona el estado'),
+               .min(0.1, 'Peso mínimo 0.1 kg').max(200, 'Peso máximo 200 kg'),
+  status:     z.enum(['activo','inactivo','critico'], { errorMap: () => ({ message: 'Estado inválido' }) }).optional(),
   ownerId:    z.string().min(1, 'Selecciona un propietario'),
+  sex:        z.string().optional(),
   color:      z.string().optional(),
   microchip:  z.string().optional(),
   sterilized: z.boolean().optional(),
@@ -25,14 +25,12 @@ export const patientSchema = z.object({
 
 /* ── Propietario ── */
 export const ownerSchema = z.object({
-  name:    z.string().min(2, 'Mínimo 2 caracteres').max(80),
-  phone:   z.string()
-            .min(7, 'Teléfono inválido')
-            .regex(/^[\d\s\+\-\(\)]+$/, 'Solo números y caracteres +, -, ()'),
-  email:   z.string().email('Email inválido').optional().or(z.literal('')),
-  address: z.string().optional(),
-  balance: z.coerce.number({ invalid_type_error: 'Debe ser un número' })
-            .min(0, 'No puede ser negativo').optional().or(z.literal('')),
+  name:  z.string().min(2, 'Mínimo 2 caracteres').max(80),
+  phone: z.string()
+          .min(7, 'Teléfono inválido')
+          .regex(/^[\d\s\+\-\(\)]+$/, 'Solo números y caracteres +, -, ()'),
+  email: z.string().email('Email inválido'),
+  city:  z.string().min(2, 'Mínimo 2 caracteres').max(80),
 })
 
 /* ── Medicamento ── */
@@ -77,6 +75,16 @@ export const noteSchema = z.object({
   procedure:  z.string().min(2, 'Describe el procedimiento').max(200),
   vet:        z.string().min(2, 'Ingresa el nombre del veterinario').max(80),
   notes:      z.string().max(500, 'Máximo 500 caracteres').optional(),
+})
+
+/* ── Seguimiento médico ── */
+export const followUpSchema = z.object({
+  patientId:   z.string().min(1, 'Selecciona un paciente'),
+  type:        z.enum(['Control','Vacuna','Desparasitación','Cirugía','Diagnóstico','Otro'], { errorMap: () => ({ message: 'Tipo inválido' }) }),
+  dueDate:     z.string().min(1, 'Selecciona una fecha'),
+  status:      z.enum(['Pendiente','Completado','Cancelado','Vencido'], { errorMap: () => ({ message: 'Estado inválido' }) }),
+  vet:         z.string().min(2, 'Ingresa el nombre del veterinario').max(80),
+  notes:       z.string().max(400, 'Máximo 400 caracteres').optional(),
 })
 
 /* ── Empresa (Admin SaaS) ── */

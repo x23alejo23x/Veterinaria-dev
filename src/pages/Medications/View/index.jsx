@@ -1,14 +1,16 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Calculator, Clock, Edit3, FlaskConical, ListChecks, Pill, Plus, Search, Tag, Trash2 } from 'lucide-react'
 import { PageContainer } from '@/components/layout/PageContainer'
 import { Button } from '@/components/ui/Button'
+import { useDebounce } from '@/hooks/useDebounce'
 import { useConfirm } from '@/hooks/useConfirm.jsx'
-import { useAppStore } from '@/store/appStore'
+import { useMutation } from '@/hooks/useFetch'
+import { useMedications, useCreateMedication, useDeleteMedication, usePrescriptions, useCreatePrescription } from '@/pages/Medications/services'
+import { usePatients } from '@/pages/Patients/services'
 import { emptyMed, getCat, fmt } from '@/pages/Medications/constants'
 import { MedicationFormModal } from '@/pages/Medications/Components/MedicationFormModal'
 import { DoseCalculatorModal } from '@/pages/Medications/Components/DoseCalculatorModal'
 
-/* ── Helpers locales pequeños ── */
 const StatCard = ({ label, value, icon: Icon, gradient }) => (
   <div className={`relative overflow-hidden rounded-2xl p-4 ${gradient}`}>
     <div className="pointer-events-none absolute -right-3 -top-3 h-20 w-20 rounded-full bg-white/10" />
@@ -19,36 +21,66 @@ const StatCard = ({ label, value, icon: Icon, gradient }) => (
 )
 
 export function MedicationsView() {
-  // Store
-  const patients      = useAppStore((s) => s.patients)
-  const medications   = useAppStore((s) => s.medicationsCatalog)
-  const prescriptions = useAppStore((s) => s.prescriptions)
-  const search        = useAppStore((s) => s.medicationSearch)
-  const setSearch     = useAppStore((s) => s.setMedicationSearch)
-  const addMedication    = useAppStore((s) => s.addMedication)
-  const updateMedication = useAppStore((s) => s.updateMedication)
-  const deleteMedication = useAppStore((s) => s.deleteMedication)
-  const addPrescription  = useAppStore((s) => s.addPrescription)
-  const { confirm, ConfirmDialog } = useConfirm()
-
-  // State
   const [activeTab, setActiveTab] = useState('catalog')
   const [medModal,  setMedModal]  = useState(null)
   const [calcOpen,  setCalcOpen]  = useState(false)
+  const [search,    setSearch]    = useState('')
   const [medForm,   setMedForm]   = useState(emptyMed)
   const [doseForm,  setDoseForm]  = useState({
-    patientId: patients[0]?.id ?? '', medicationId: medications[0]?.id ?? '',
-    concentration: medications[0]?.concentration ?? 10, weight: patients[0]?.weight ?? 0,
-    mgKg: 1, frequency: 12, duration: 5,
+    patientId: '', medicationId: '', concentration: 10, weight: 0, mgKg: 1, frequency: 12, duration: 5,
   })
+  const { confirm, ConfirmDialog } = useConfirm()
+  const debouncedSearch = useDebounce(search, 280)
 
-  const filtered  = useMemo(() => medications.filter((m) => [m.name, m.category, m.unit].some((v) => v.toLowerCase().includes(search.toLowerCase()))), [medications, search])
-  const rxRows    = useMemo(() => prescriptions.map((rx) => ({ ...rx, patient: patients.find((p) => p.id === rx.patientId)?.name ?? '—', medication: medications.find((m) => m.id === rx.medicationId)?.name ?? '—' })), [prescriptions, patients, medications])
-  const categories = useMemo(() => [...new Set(medications.map((m) => m.category))].length, [medications])
+  // Datos del backend
+  const { data: mData, loading, refetch: refetchMeds } = useMedications({ search: debouncedSearch || undefined })
+  const medications = mData?.items ?? []
+
+  const { data: rxData, refetch: refetchRx } = usePrescriptions()
+
+  // Lazy: solo carga pacientes cuando se abre la calculadora de dosis
+  const { data: pData, refetch: loadPatients } = usePatients({ limit: 200 }, { immediate: false })
+  const patients = pData?.items ?? []
+  const calcLoadedRef = useRef(false)
+  useEffect(() => {
+    if (calcOpen && !calcLoadedRef.current) { calcLoadedRef.current = true; loadPatients() }
+  }, [calcOpen]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Inicializar doseForm cuando los datos cargan
+  useEffect(() => {
+    if (patients.length && !doseForm.patientId) {
+      setDoseForm((f) => ({ ...f, patientId: patients[0].id, weight: patients[0].weight ?? 0 }))
+    }
+  }, [patients])
+
+  useEffect(() => {
+    if (medications.length && !doseForm.medicationId) {
+      setDoseForm((f) => ({ ...f, medicationId: medications[0].id, concentration: medications[0].concentration ?? 10 }))
+    }
+  }, [medications])
+
+  // Mutaciones
+  const { create: createMed }   = useCreateMedication({ onSuccess: () => refetchMeds() })
+  const { remove: removeMed }   = useDeleteMedication({ onSuccess: () => refetchMeds() })
+  const { mutate: doUpdateMed } = useMutation('PUT', '/medications', { successMsg: 'Medicamento actualizado', onSuccess: () => refetchMeds() })
+  const prescriptions = rxData?.items ?? []
+  const { create: createPrescription } = useCreatePrescription({ onSuccess: () => refetchRx() })
+
+  const categories = new Set(medications.map((m) => m.category)).size
+  const rxRows = prescriptions.map((rx) => ({
+    ...rx,
+    patient:    patients.find((p) => p.id === rx.patientId)?.name ?? '—',
+    medication: medications.find((m) => m.id === rx.medicationId)?.name ?? '—',
+  }))
+
+  const filtered = medications.filter((m) =>
+    !debouncedSearch || [m.name, m.category, m.unit].some((v) => v?.toLowerCase().includes(debouncedSearch.toLowerCase()))
+  )
 
   const openNew  = () => { setMedForm(emptyMed); setMedModal({ mode: 'create' }) }
   const openEdit = (row) => { setMedForm(row); setMedModal({ mode: 'edit', data: row }) }
   const closeMed = () => setMedModal(null)
+
   const handleDeleteMed = async (med) => {
     const rxCount = prescriptions.filter((rx) => rx.medicationId === med.id).length
     const ok = await confirm({
@@ -58,7 +90,7 @@ export function MedicationsView() {
         : 'Esta acción no se puede deshacer.',
       danger: true,
     })
-    if (ok) deleteMedication(med.id)
+    if (ok) removeMed(med.id)
   }
 
   return (
@@ -68,15 +100,13 @@ export function MedicationsView() {
         <Button variant="primary" onClick={openNew}><Plus size={14} /> Nuevo medicamento</Button>
       </div>}>
 
-      {/* Stats */}
       <div className="mb-4 grid grid-cols-3 gap-3">
-        <StatCard icon={Pill}       label="Medicamentos"      value={medications.length}   gradient="bg-gradient-to-br from-blue-500 to-blue-700" />
-        <StatCard icon={Tag}        label="Categorías"         value={categories}            gradient="bg-gradient-to-br from-violet-500 to-purple-700" />
-        <StatCard icon={ListChecks} label="Prescripciones"     value={prescriptions.length} gradient="bg-gradient-to-br from-emerald-500 to-teal-600" />
+        <StatCard icon={Pill}       label="Medicamentos"  value={medications.length}   gradient="bg-gradient-to-br from-blue-500 to-blue-700" />
+        <StatCard icon={Tag}        label="Categorías"    value={categories}            gradient="bg-gradient-to-br from-violet-500 to-purple-700" />
+        <StatCard icon={ListChecks} label="Prescripciones" value={prescriptions.length} gradient="bg-gradient-to-br from-emerald-500 to-teal-600" />
       </div>
 
       <div className="flex flex-1 min-h-0 flex-col">
-        {/* Tabs */}
         <div className="mb-4 shrink-0 flex items-center gap-1 self-start rounded-xl bg-[var(--surface-2)] p-1 border border-[var(--border)]">
           {[{ id: 'catalog', label: 'Catálogo', count: filtered.length }, { id: 'prescriptions', label: 'Prescripciones', count: rxRows.length }].map((t) => (
             <button key={t.id} onClick={() => setActiveTab(t.id)}
@@ -87,24 +117,23 @@ export function MedicationsView() {
           ))}
         </div>
 
-        {/* Catálogo */}
         {activeTab === 'catalog' && <CatalogTab filtered={filtered} search={search} setSearch={setSearch} openEdit={openEdit} onDelete={handleDeleteMed} />}
-
-        {/* Prescripciones */}
         {activeTab === 'prescriptions' && <PrescriptionsTab rxRows={rxRows} medications={medications} />}
       </div>
 
       <MedicationFormModal modal={medModal} medForm={medForm} setMedForm={setMedForm} onClose={closeMed}
-        onSave={(data, mode, id) => { mode === 'edit' && id ? updateMedication(id, data) : addMedication(data); closeMed() }} />
+        onSave={(data, mode, id) => {
+          if (mode === 'edit' && id) doUpdateMed(data, `/medications/${id}`)
+          else createMed(data)
+          closeMed()
+        }} />
 
       <DoseCalculatorModal isOpen={calcOpen} onClose={() => setCalcOpen(false)} doseForm={doseForm} setDoseForm={setDoseForm}
-        patients={patients} medications={medications} onSave={addPrescription} />
+        patients={patients} medications={medications} onSave={createPrescription} />
       <ConfirmDialog />
     </PageContainer>
   )
 }
-
-/* ── Sub-componentes locales (específicos de esta vista) ── */
 
 function CatalogTab({ filtered, search, setSearch, openEdit, onDelete }) {
   return (

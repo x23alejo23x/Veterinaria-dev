@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Modal } from '@/components/ui/Modal'
 
-export const emptyOwner = { name: '', phone: '', email: '', address: '', balance: 0 }
+export const emptyOwner = { name: '', phone: '', email: '', city: '' }
 
 /**
  * OwnerModal — formulario de creación/edición de propietario.
@@ -21,7 +21,7 @@ export function OwnerModal({ modal, onClose, onSave }) {
       isOpen={!!modal}
       onClose={onClose}
       title={modal.mode === 'edit' ? 'Editar propietario' : 'Nuevo propietario'}
-      description="Datos de contacto y saldo del propietario"
+      description="Datos de contacto del propietario"
       icon={<Users size={18} />}
       size="md"
       footer={
@@ -35,10 +35,9 @@ export function OwnerModal({ modal, onClose, onSave }) {
         <Input placeholder="Nombre completo *" value={form.name} onChange={set('name')} required />
         <div className="grid gap-3 sm:grid-cols-2">
           <Input placeholder="Teléfono *" value={form.phone} onChange={set('phone')} required />
-          <Input placeholder="Email" type="email" value={form.email} onChange={set('email')} />
+          <Input placeholder="Email *" type="email" value={form.email} onChange={set('email')} required />
         </div>
-        <Input placeholder="Dirección" value={form.address} onChange={set('address')} />
-        <Input type="number" placeholder="Saldo ($)" value={form.balance} onChange={set('balance')} />
+        <Input placeholder="Ciudad *" value={form.city} onChange={set('city')} required />
       </form>
     </Modal>
   )

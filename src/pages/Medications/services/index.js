@@ -10,8 +10,23 @@ import { paginated, single } from '@/utils/apiResponse'
 const BASE_MEDS = '/medications'
 const BASE_RX   = '/prescriptions'
 
-export function useMedications(params = {}) {
-  return useFetch(BASE_MEDS, { params, transform: paginated, fallback: { items: [], total: 0 } })
+// Convierte datos del formulario (camelCase) al contrato del backend (snake_case)
+export function toPrescriptionPayload(data) {
+  return {
+    patient_id:    Number(data.patientId    ?? data.patient_id),
+    medication_id: Number(data.medicationId ?? data.medication_id),
+    dose:          data.dose,
+    frequency:     data.frequency,
+    duration:      data.duration,
+    notes:         data.notes     || null,
+    status:        data.status    || 'Activa',
+    vet:           data.vet       || null,
+    date:          data.date      || null,
+  }
+}
+
+export function useMedications(params = {}, options = {}) {
+  return useFetch(BASE_MEDS, { params, transform: paginated, fallback: { items: [], total: 0 }, ...options })
 }
 
 export function useCreateMedication(options = {}) {
@@ -29,11 +44,34 @@ export function useDeleteMedication(options = {}) {
   return { remove: (id) => m.mutate(null, `${BASE_MEDS}/${id}`), loading: m.loading }
 }
 
-export function usePrescriptions(params = {}) {
-  return useFetch(BASE_RX, { params, transform: paginated, fallback: { items: [], total: 0 } })
+function normalizePrescription(rx) {
+  return {
+    ...rx,
+    medicationId: rx.medication_id ?? rx.medicationId,
+    patientId:    rx.patient_id   ?? rx.patientId,
+  }
+}
+
+function normalizedPaginated(res) {
+  const result = paginated(res)
+  return { ...result, items: (result.items ?? []).map(normalizePrescription) }
+}
+
+export function usePrescriptions(params = {}, options = {}) {
+  return useFetch(BASE_RX, { params, transform: normalizedPaginated, fallback: { items: [], total: 0 }, ...options })
 }
 
 export function useCreatePrescription(options = {}) {
   const m = useMutation('POST', BASE_RX, { successMsg: 'Prescripción guardada', ...options })
-  return { create: m.mutate, loading: m.loading, error: m.error }
+  return { create: (data) => m.mutate(toPrescriptionPayload(data)), loading: m.loading, error: m.error }
+}
+
+export function useUpdatePrescription(id, options = {}) {
+  const m = useMutation('PUT', `${BASE_RX}/${id}`, { successMsg: 'Prescripción actualizada', ...options })
+  return { update: (data) => m.mutate(toPrescriptionPayload(data)), loading: m.loading }
+}
+
+export function useDeletePrescription(options = {}) {
+  const m = useMutation('DELETE', BASE_RX, { successMsg: 'Prescripción eliminada', ...options })
+  return { remove: (id) => m.mutate(null, `${BASE_RX}/${id}`), loading: m.loading }
 }

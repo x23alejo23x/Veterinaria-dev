@@ -52,27 +52,35 @@ export function useFetch(url, options = {}) {
   const transformRef = useRef(transform)
   transformRef.current = transform
 
-  const execute = useCallback(async (overrideUrl) => {
+  // JSON.stringify evita re-ejecuciones por identidad de objeto en cada render
+  const paramsKey = JSON.stringify(params) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const execute = useCallback(async (overrideUrl, signal) => {
     const target = overrideUrl ?? url
     if (!target) return
 
     if (mountedRef.current) { setLoading(true); setError(null) }
 
     try {
-      const res = await api.get(target, params ? { params } : undefined)
+      const res = await api.get(target, params ?? undefined, signal)
       const value = transformRef.current ? transformRef.current(res) : res
       if (mountedRef.current) setData(value)
       return value
     } catch (err) {
+      if (err?.name === 'AbortError') return null  // StrictMode cleanup — no actualizar estado
       if (mountedRef.current) setError(err.message ?? 'Error al cargar datos')
       return null
     } finally {
+      if (signal?.aborted) return
       if (mountedRef.current) setLoading(false)
     }
-  }, [url, params])
+  }, [url, paramsKey]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    if (immediate && url) execute()
+    if (!immediate || !url) return
+    const controller = new AbortController()
+    execute(undefined, controller.signal)
+    return () => controller.abort()  // cancela la primera petición si StrictMode desmonta
   }, [url, immediate, execute])
 
   const reset = useCallback(() => {
