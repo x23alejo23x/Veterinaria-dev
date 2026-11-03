@@ -20,7 +20,7 @@ export const getGrad = (name) => GRADIENTS[(name.charCodeAt(0) - 65) % GRADIENTS
 
 export const speciesEmoji = { Canino: '🐕', Felino: '🐱', Ave: '🦜', Reptil: '🦎', Otro: '🐾' }
 
-export const TABS = ['Datos', 'Historial', 'Medicación', 'Propietario']
+export const TABS = ['Datos', 'Historial', 'Medicación', 'Consultas', 'Propietario']
 
 /* ── Estado de prescripción — punto de color por valor ── */
 export const PRESCRIPTION_STATUS_CFG = {

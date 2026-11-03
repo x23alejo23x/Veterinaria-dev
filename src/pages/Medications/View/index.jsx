@@ -10,6 +10,7 @@ import { usePatients } from '@/pages/Patients/services'
 import { emptyMed, getCat, fmt } from '@/pages/Medications/constants'
 import { MedicationFormModal } from '@/pages/Medications/Components/MedicationFormModal'
 import { DoseCalculatorModal } from '@/pages/Medications/Components/DoseCalculatorModal'
+import { ExamCatalogTab } from '@/pages/Medications/Components/ExamCatalogTab'
 
 const StatCard = ({ label, value, icon: Icon, gradient }) => (
   <div className={`relative overflow-hidden rounded-2xl p-4 ${gradient}`}>
@@ -108,17 +109,18 @@ export function MedicationsView() {
 
       <div className="flex flex-1 min-h-0 flex-col">
         <div className="mb-4 shrink-0 flex items-center gap-1 self-start rounded-xl bg-[var(--surface-2)] p-1 border border-[var(--border)]">
-          {[{ id: 'catalog', label: 'Catálogo', count: filtered.length }, { id: 'prescriptions', label: 'Prescripciones', count: rxRows.length }].map((t) => (
+          {[{ id: 'catalog', label: 'Catálogo', count: filtered.length }, { id: 'prescriptions', label: 'Prescripciones', count: rxRows.length }, { id: 'exams', label: 'Exámenes', count: null }].map((t) => (
             <button key={t.id} onClick={() => setActiveTab(t.id)}
               className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-all ${activeTab === t.id ? 'bg-gradient-to-br from-violet-600 to-indigo-600 text-white shadow-sm' : 'text-[var(--text-3)] hover:text-[var(--text)]'}`}>
               {t.label}
-              <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${activeTab === t.id ? 'bg-white/20 text-white' : 'bg-[var(--border)] text-[var(--text-3)]'}`}>{t.count}</span>
+              {t.count !== null && <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${activeTab === t.id ? 'bg-white/20 text-white' : 'bg-[var(--border)] text-[var(--text-3)]'}`}>{t.count}</span>}
             </button>
           ))}
         </div>
 
         {activeTab === 'catalog' && <CatalogTab filtered={filtered} search={search} setSearch={setSearch} openEdit={openEdit} onDelete={handleDeleteMed} />}
         {activeTab === 'prescriptions' && <PrescriptionsTab rxRows={rxRows} medications={medications} />}
+        {activeTab === 'exams' && <ExamCatalogTab />}
       </div>
 
       <MedicationFormModal modal={medModal} medForm={medForm} setMedForm={setMedForm} onClose={closeMed}

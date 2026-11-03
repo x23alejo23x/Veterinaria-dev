@@ -14,6 +14,8 @@ import { useMutation } from '@/hooks/useFetch'
 import { usePatient } from '@/pages/Patients/services'
 import { useOwner } from '@/pages/Owners/services'
 import { useMedications, usePrescriptions, useCreatePrescription, useDeletePrescription, toPrescriptionPayload } from '@/pages/Medications/services'
+import { useConsultas, useCreateConsulta } from '@/pages/Consultas/services'
+import { ConsultasTab } from '@/pages/PatientProfile/Components/ConsultasTab'
 
 // Normaliza snake_case del backend a camelCase para los componentes del perfil
 function normalizePatient(raw) {
@@ -49,6 +51,11 @@ export function PatientProfileView() {
   // Medicamentos del backend (carga lazy al montar)
   const { data: medsData } = useMedications({ limit: 200 })
   const medications = medsData?.items ?? []
+
+  // Consultas del paciente
+  const { data: consultasData, refetch: refetchConsultas } = useConsultas({ patient_id: id }, { immediate: !!id })
+  const consultas = consultasData?.items ?? []
+  const { create: createConsulta } = useCreateConsulta({ onSuccess: () => refetchConsultas() })
 
   // Store: notas clínicas (aún no conectado al backend)
   const clinicalNotes       = useAppStore((s) => s.clinicalNotes)
@@ -120,6 +127,13 @@ export function PatientProfileView() {
                   const item = rx.find((r) => r.id === rxId)
                   if (item) _updateRx(toPrescriptionPayload({ ...item, status }), `/prescriptions/${rxId}`)
                 }}
+              />
+            )}
+            {tab === 'Consultas' && (
+              <ConsultasTab
+                patientId={id}
+                consultas={consultas}
+                onCreate={() => createConsulta({ patientId: Number(id), vet: 'Dra. Valentina Rios', baseFee: 0 })}
               />
             )}
             {tab === 'Propietario' && owner && <PropietarioTab owner={owner} />}

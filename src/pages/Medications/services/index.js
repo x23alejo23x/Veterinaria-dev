@@ -75,3 +75,26 @@ export function useDeletePrescription(options = {}) {
   const m = useMutation('DELETE', BASE_RX, { successMsg: 'Prescripción eliminada', ...options })
   return { remove: (id) => m.mutate(null, `${BASE_RX}/${id}`), loading: m.loading }
 }
+
+/* ── Catálogo de exámenes ── */
+
+const BASE_EXAM_CATALOG = '/exam-catalog'
+
+export function useExamCatalogList(params = {}, options = {}) {
+  return useFetch(BASE_EXAM_CATALOG, { params, transform: paginated, fallback: { items: [], total: 0 }, ...options })
+}
+
+export function useCreateExamCatalogItem(options = {}) {
+  const m = useMutation('POST', BASE_EXAM_CATALOG, { successMsg: 'Examen agregado al catálogo', ...options })
+  return { create: m.mutate, loading: m.loading, error: m.error }
+}
+
+export function useUpdateExamCatalogItem(id, options = {}) {
+  const m = useMutation('PUT', `${BASE_EXAM_CATALOG}/${id}`, { successMsg: 'Examen actualizado', ...options })
+  return { update: m.mutate, loading: m.loading }
+}
+
+export function useDeleteExamCatalogItem(options = {}) {
+  const m = useMutation('DELETE', BASE_EXAM_CATALOG, { successMsg: 'Examen eliminado', ...options })
+  return { remove: (id) => m.mutate(null, `${BASE_EXAM_CATALOG}/${id}`), loading: m.loading }
+}

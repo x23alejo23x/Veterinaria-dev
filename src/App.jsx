@@ -14,6 +14,8 @@ import { ReportsView } from '@/pages/Reports/View'
 import { SettingsView } from '@/pages/Settings/View'
 import { AdminView } from '@/pages/Admin/View'
 import { RegisterView } from '@/pages/Register/View'
+import { ConsultasListView } from '@/pages/Consultas/ListView'
+import { ConsultaView } from '@/pages/Consultas/View'
 
 export default function App() {
   // AnimatePresence se removió del nivel de Routes porque key={pathname}
@@ -41,6 +43,8 @@ export default function App() {
         <Route path="historial"    element={<MedicalHistoryView />} />
         <Route path="seguimientos" element={<FollowUpsView />} />
         <Route path="reportes"     element={<ReportsView />} />
+        <Route path="consultas"    element={<ConsultasListView />} />
+        <Route path="consultas/:id" element={<ConsultaView />} />
         <Route path="configuracion" element={<SettingsView />} />
         <Route path="admin" element={
             <ProtectedRoute requiredRole="admin">
