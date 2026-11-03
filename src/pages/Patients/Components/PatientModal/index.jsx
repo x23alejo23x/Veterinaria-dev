@@ -52,7 +52,7 @@ export function PatientModal({ modal, owners, onClose, onSave }) {
             <FormField error={errors.species}>
               <Select options={['Canino','Felino','Ave','Reptil','Otro']}
                 value={watch('species')} onChange={(e) => setValue('species', e.target.value, { shouldValidate: true })}
-                placeholder="Especie *" searchable />
+                placeholder="Especie *" aria-label="Especie" searchable />
             </FormField>
             <FormField error={errors.breed}><Input placeholder="Raza *" {...register('breed')} /></FormField>
             <Input placeholder="Color / pelaje" {...register('color')} />
@@ -60,7 +60,7 @@ export function PatientModal({ modal, owners, onClose, onSave }) {
             <FormField error={errors.weight}><Input type="number" step="0.1" min="0" placeholder="Peso (kg)" {...register('weight')} /></FormField>
             <FormField error={errors.sex}>
               <Select options={['Macho','Hembra']} value={watch('sex')}
-                onChange={(e) => setValue('sex', e.target.value, { shouldValidate: true })} placeholder="Sexo *" />
+                onChange={(e) => setValue('sex', e.target.value, { shouldValidate: true })} placeholder="Sexo *" aria-label="Sexo" />
             </FormField>
             <FormField error={errors.status}>
               <Select
@@ -70,7 +70,7 @@ export function PatientModal({ modal, owners, onClose, onSave }) {
                   { value: 'critico',  label: 'Crítico'  },
                 ]}
                 value={watch('status')} onChange={(e) => setValue('status', e.target.value, { shouldValidate: true })}
-                placeholder="Estado *" />
+                placeholder="Estado *" aria-label="Estado" />
             </FormField>
           </div>
         </section>
@@ -80,7 +80,7 @@ export function PatientModal({ modal, owners, onClose, onSave }) {
             <FormField error={errors.ownerId}>
               <Select options={owners.map((o) => ({ value: o.id, label: o.name }))}
                 value={watch('ownerId')} onChange={(e) => setValue('ownerId', e.target.value, { shouldValidate: true })}
-                placeholder="Buscar propietario…" searchable />
+                placeholder="Buscar propietario…" aria-label="Propietario" searchable />
             </FormField>
             <Input placeholder="Número de microchip" {...register('microchip')} />
             <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-[var(--border)] bg-[var(--surface-2)] px-4 py-2.5 text-sm font-medium text-[var(--text)] transition hover:bg-[var(--border)]">
